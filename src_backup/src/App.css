@@ -1,0 +1,133 @@
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+
+.submenu-item {
+    align-items: center;
+    transition: background-color 0.3s ease-in-out;
+    text-align: left;
+    width: 100%;
+}
+.menu-item:hover{
+    background-color: #323b49;
+}
+
+.submenu-item:hover {
+    background-color: #374151;
+}
+menu-item i {
+    width: 24px;
+    text-align: center;
+    margin-right: 8px; 
+}
+
+.sidebar button {
+    padding: 10px 20px;
+    color: white;
+    text-decoration: none;
+    width: 100%;
+    transition: background-color 0.3s ease-in-out;
+}
+.drop-arrow {
+    font-size: 10px;
+}
+
+.form-group {
+    flex: 1;
+    padding: 0 15px;
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+    margin: 10px 0;
+    width: 100%;
+}
+
+.label-text {
+    width: 150px;
+    text-align: right;
+    padding-right: 40px;
+}
+.label-textarea {
+    width: 150px;
+    text-align: left;
+    padding-right: 40px;
+}
+
+.form-input {
+    flex: 1;
+    padding: 10px;
+    margin: 5px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+.form-input:focus {
+    border-color: #4B5563;
+}
+
+.kategori-container {
+    display: flex;
+    align-items: center;
+    flex: 2;
+}
+.category-dropdown:focus {
+    outline: none;
+    border-color: #4B5563;
+}
+.category-dropdown {
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    appearance: none; /* Remove default appearance */
+    -webkit-appearance: none;
+    background-color: #fff;
+    padding: 10px 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: white;
+    text-align: center;
+    cursor: pointer;
+    font-size: 14px;
+    flex: 1;
+    width: 300px;
+}
+/* CSS untuk mengatur teks di dalam dropdown menjadi ditengah */
+.category-dropdown option {
+    text-align: center;
+    text-align-last: center;
+}
+
+.category-dropdown::after {
+    content: '\25BC'; /* Downward arrow character */
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    font-size: 16px;
+    pointer-events: none;
+}
+.category-dropdown:hover::after {
+    color: #4B5563;
+}
+.main-btn {
+    background-color: rgb(31 41 55);
+    color: white;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease-in-out;
+}
+.addtoggle-btn {
+    background-color: rgb(31 41 55);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 15px;
+    margin-left: 5px;
+    cursor: pointer;
+}
+.dashboard-label {
+    /* color: #666; */
+}

@@ -1,0 +1,76 @@
+{
+    "name": "react-website",
+    "version": "0.1.0",
+    "private": true,
+    "dependencies": {
+        "@emotion/react": "^11.11.1",
+        "@emotion/styled": "^11.11.0",
+        "@fortawesome/fontawesome-svg-core": "^6.4.2",
+        "@fortawesome/free-brands-svg-icons": "^6.4.2",
+        "@fortawesome/free-regular-svg-icons": "^6.4.2",
+        "@fortawesome/free-solid-svg-icons": "^6.4.2",
+        "@fortawesome/react-fontawesome": "^0.2.0",
+        "@mui/icons-material": "^5.14.15",
+        "@mui/material": "^5.14.15",
+        "@mui/x-data-grid": "^6.16.3",
+        "@mui/x-date-pickers": "^6.16.3",
+        "@testing-library/jest-dom": "^5.17.0",
+        "@testing-library/react": "^13.4.0",
+        "@testing-library/user-event": "^13.5.0",
+        "axios": "^1.5.1",
+        "export-to-csv": "^1.2.0",
+        "font-awesome": "^4.7.0",
+        "jquery": "^3.7.1",
+        "jsonwebtoken": "^9.0.2",
+        "jspdf": "^2.5.1",
+        "jspdf-autotable": "^3.7.0",
+        "material-react-table": "^2.0.0-beta.13",
+        "react": "^18.2.0",
+        "react-burger-menu": "^3.0.9",
+        "react-collapse": "^5.1.1",
+        "react-csv": "^2.2.2",
+        "react-data-export": "^0.6.0",
+        "react-data-table-component": "^7.5.4",
+        "react-data-table-component-extensions": "^1.6.0",
+        "react-dom": "^18.2.0",
+        "react-dropzone": "^14.2.3",
+        "react-modal": "^3.16.1",
+        "react-router-dom": "^6.16.0",
+        "react-script": "^2.0.5",
+        "react-scripts": "^5.0.1",
+        "react-sidebar": "^3.0.2",
+        "react-smooth-slide-toggle": "^1.1.1",
+        "react-spring": "^9.7.3",
+        "react-transition-group": "^4.4.5",
+        "styled-components": "^6.0.8",
+        "tailwindcss": "^3.3.3",
+        "web-vitals": "^2.1.4"
+    },
+    "scripts": {
+        "start": "react-scripts start",
+        "build": "react-scripts build",
+        "test": "react-scripts test",
+        "eject": "react-scripts eject"
+    },
+    "eslintConfig": {
+        "extends": [
+            "react-app",
+            "react-app/jest"
+        ]
+    },
+    "browserslist": {
+        "production": [
+            ">0.2%",
+            "not dead",
+            "not op_mini all"
+        ],
+        "development": [
+            "last 1 chrome version",
+            "last 1 firefox version",
+            "last 1 safari version"
+        ]
+    },
+    "devDependencies": {
+        "@babel/plugin-proposal-private-property-in-object": "^7.21.11"
+    }
+}
