@@ -28,35 +28,21 @@ const History = () => {
       setShowMain(true);
       setShowTicket((prev) => !prev);
       setShowPeminjaman(false);
-      setShowFinal(false);
     };
     const showPeminjamanHandler = () => {
       setShowMain(true);
       setShowTicket(false);
       setShowPeminjaman((prev) => !prev);
-      setShowFinal(false);
-    };
-    const showFinalHandler = () => {
-      setShowMain(true);
-      setShowTicket(false);
-      setShowPeminjaman(false);
-      setShowFinal((prev) => !prev);
     };
 
     // Modal
     const [showModalTicket, setShowModalTicket] = useState(false);
     const [showModalPeminjaman, setShowModalPeminjaman] = useState(false);
 
-    const showModalTicketHandle = () => {
-      setShowModalTicket(true);
-    };
     const closeModalTicketHandle = () => {
       setShowModalTicket(false);
     };
 
-    const showModalPeminjamanHandle = () => {
-      setShowModalPeminjaman(true);
-    };
     const closeModalPeminjamanHandle = () => {
       setShowModalPeminjaman(false);
     };

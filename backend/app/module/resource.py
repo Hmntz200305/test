@@ -7,3 +7,4 @@ from app.module.lease import LeaseTicket, LeaseSubmited, TicketApprove, TicketDe
 from app.module.dashboard import DashboardInfo
 from app.module.returns import inLoanAssetList, ReturnAsset
 from app.module.history import HistoryTicket, HistoryLoanData
+from app.module.myreport import MyReport

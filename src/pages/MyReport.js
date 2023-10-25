@@ -7,10 +7,11 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faDownload, faFileCsv, faFileExport, faFileImport } from '@fortawesome/free-solid-svg-icons';
 import Modal from 'react-modal';
 import foto from '../resources/img/aset2.jpg';
+import { useAuth } from '../AuthContext';
 Modal.setAppElement('#root');
 
 const MyReport = () => {
-
+     const { refreshMyReport, MyReport } = useAuth();
      const calculateRemainingTime = () => {
         const currentDate = new Date(); // Tanggal hari ini
         const dataWithRemainingTime = fakedata1.map((item) => {

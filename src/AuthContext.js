@@ -28,6 +28,7 @@ export const AuthProvider = ({ children }) => {
   const [Roles, setRoles] = useState([]);
   const [HistoryTicket, setHistoryTicket] = useState([]);
   const [HistoryLoanData, setHistoryLoanData] = useState([]);
+  const [MyReport, setMyReport] = useState([]);
 
   useEffect(() => {
     async function fetchData() {
@@ -236,9 +237,27 @@ export const AuthProvider = ({ children }) => {
         console.error('Error fetching data:', error);
       });
   };
+
+  const refreshMyReport = () => {
+    const requestOptions = {
+      method: 'GET',
+      headers: {
+        'Authorization': token
+      }
+    };
+    
+    fetch('http://sipanda.online:5000/api/myreport', requestOptions)
+      .then((response) => response.json())
+      .then((data) => {
+        setMyReport(data);
+      })
+      .catch((error) => {
+        console.error('Error fetching status data:', error);
+      });
+  }
   
   return (
-    <AuthContext.Provider value={{ token, email, username, loggedIn, login, logout, refreshAssetData, DataListAsset, refreshStatusList, StatusOptions, refreshLocationList, LocationOptions, refreshCategoryList, CategoryOptions, refreshManageUser, ManageUserData, Role, DataListAssetExcept, refreshAssetDataExcept, AdminList, refreshAdminList, SubmitedList, refreshSubmitedList, refreshDashboardInfo, DashboardInfo, onRequest, inLoans, CountinLoans, refreshDataLoan, DataLoan, Roles, refreshHistoryTicket, HistoryTicket, refreshHistoryLoanData, HistoryLoanData }}>
+    <AuthContext.Provider value={{ token, email, username, loggedIn, login, logout, refreshAssetData, DataListAsset, refreshStatusList, StatusOptions, refreshLocationList, LocationOptions, refreshCategoryList, CategoryOptions, refreshManageUser, ManageUserData, Role, DataListAssetExcept, refreshAssetDataExcept, AdminList, refreshAdminList, SubmitedList, refreshSubmitedList, refreshDashboardInfo, DashboardInfo, onRequest, inLoans, CountinLoans, refreshDataLoan, DataLoan, Roles, refreshHistoryTicket, HistoryTicket, refreshHistoryLoanData, HistoryLoanData, refreshMyReport, MyReport }}>
       {children}
     </AuthContext.Provider>
   );
