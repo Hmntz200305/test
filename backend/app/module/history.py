@@ -77,7 +77,7 @@ class HistoryLoanData(Resource):
         
         loandata_list = []
         for row, row_data in enumerate(loandata, start=1):
-            idloandata, idticket, idasset, nameasset, leasedate, returndate, username, email, status = row_data
+            idloandata, idticket, idasset, nameasset, leasedate, returndate, username, email, status, deleted = row_data
 
             if status == 0:
                 status = 'In Loans'

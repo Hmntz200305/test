@@ -27,38 +27,56 @@ class MyReport(Resource):
             email = payload['email']
             password = payload['password']
             if email and password:
-    
-                # Ticket Checking
-                lmd.execute('SELECT * from loandata where status = %s and email = %s', (0, email))
+                
+                lmd.execute('SELECT * from ticket where email = %s', (email,))
                 loandata = lmd.fetchall()
 
+                lmd.execute('SELECT count(*) from loandata where email = %s and status = %s', (email, 0))
+                onloan = lmd.fetchone()[0]
+                
+                lmd.execute('SELECT count(*) from ticket where email = %s and status = %s', (email, 0))
+                onrequest = lmd.fetchone()[0]
+                
                 myreport_list = []
                 for row, row_data in enumerate(loandata, start=1):
-                    idloandata, idticket, idasset, nameasset, leasedate, returndate, username, email, status = row_data
+                    idticket, idasset, username, leasedate, returndate, locationasset, emailuser, note, statusticket = row_data
 
-                    if status == 0:
-                        status = 'In Loans'
-                    else:
-                        status = '...'
-
+                    print(idticket)
                     # Asset Information
                     lmd.execute('SELECT * from assets where id = %s', (idasset,))
                     assetinformation = lmd.fetchone()
 
-                    lmd.execute('SELECT email from ticketingadmin where idticket = %s', (idticket,))
+                    lmd.execute('SELECT email,status from ticketingadmin where idticket = %s', (idticket,))
                     email_admin = lmd.fetchall() 
-
-                    username_admin1 = username_admin2 = None  # Inisialisasi variabel
+                    
+                    username_admin1 = username_admin2 = None
+                    admin1_status = admin2_status = None
 
                     if email_admin:
                         lmd.execute('SELECT username from users where email = %s', (email_admin[0][0],))
                         username_admin1 = lmd.fetchone()
+                        admin1_status = email_admin[0][1]
                         if len(email_admin) > 1:
                             lmd.execute('SELECT username from users where email = %s', (email_admin[1][0],))
                             username_admin2 = lmd.fetchone()
+                            admin2_status = email_admin[1][1]
 
-                    lmd.execute('SELECT status from ticket where idticket = %s', (idticket,))
-                    statusticket = lmd.fetchone()[0]
+                    if admin1_status == 1:
+                        admin1_status = 'Approved'
+                    elif admin1_status == 2:
+                        admin1_status = 'Decline'
+                    else:
+                        admin1_status = 'on Request'
+                        
+                    if admin2_status == 1:
+                        admin2_status = 'Approved'
+                    elif admin2_status == 2 and admin1_status == 1:
+                        admin2_status = 'Decline'
+                    elif admin2_status == 2:
+                        admin2_status = 'on Request'
+                    else:
+                        admin2_status = 'on Request'
+                    
 
                     if statusticket == 1:
                         statusticket = 'Approved'
@@ -67,31 +85,91 @@ class MyReport(Resource):
                     else:
                         statusticket = 'on Request'
 
+                    # Ticket Checking
+                    
+                    lmd.execute('SELECT * from loandata where email = %s and deleted = %s AND idticket = %s', (email, 0, idticket))
+                    loandata = lmd.fetchone()
+                    if loandata:
+                        # Create a dictionary for each ticket and add it to the list
+                        loan_data = {
+                            'no': row,
+                            'id': loandata[0],
+                            'idticket': idticket,
+                            'idasset': idasset,
+                            'name': loandata[6],
+                            'leasedate': str(leasedate),
+                            'returndate': str(returndate),
+                            'email': email,
+                            'statusticket': statusticket,
+                            'asset': assetinformation[1],
+                            'assetname': assetinformation[2],
+                            'assetdescription': assetinformation[3],
+                            'assetbrand': assetinformation[4],
+                            'assetmodel': assetinformation[5],
+                            'assetstatus': assetinformation[6],
+                            'assetlocation': assetinformation[7],
+                            'assetcategory': assetinformation[8],
+                            'assetsn': assetinformation[9],
+                            'assetphoto': assetinformation[10],
+                            'admin1': username_admin1[0] if username_admin1 else None,
+                            'admin2': username_admin2[0] if username_admin2 else None,
+                            'admin1status': admin1_status,
+                            'admin2status': admin2_status,
+                        }
+                        myreport_list.append(loan_data)
+                    else:
+                        # Create a dictionary for each ticket and add it to the list
+                        loan_data = {
+                            'no': row,
+                            'idticket': idticket,
+                            'idasset': idasset,
+                            'leasedate': str(leasedate),
+                            'returndate': str(returndate),
+                            'email': email,
+                            'statusticket': statusticket,
+                            'asset': assetinformation[1],
+                            'assetname': assetinformation[2],
+                            'assetdescription': assetinformation[3],
+                            'assetbrand': assetinformation[4],
+                            'assetmodel': assetinformation[5],
+                            'assetstatus': assetinformation[6],
+                            'assetlocation': assetinformation[7],
+                            'assetcategory': assetinformation[8],
+                            'assetsn': assetinformation[9],
+                            'assetphoto': assetinformation[10],
+                            'admin1': username_admin1[0] if username_admin1 else None,
+                            'admin2': username_admin2[0] if username_admin2 else None,
+                            'admin1status': admin1_status,
+                            'admin2status': admin2_status,
+                        }
+                        myreport_list.append(loan_data)
+                response_data = {
+                    'myreport_list': myreport_list,
+                    'onloan': onloan,
+                    'onrequest': onrequest
+                }
 
-                    # Create a dictionary for each ticket and add it to the list
-                    loan_data = {
-                        'no': row,  # Menambahkan nomor baris
-                        'idticket': idticket,
-                        'idasset': idasset,
-                        'name': username,
-                        'leasedate': str(leasedate),
-                        'returndate': str(returndate),
-                        'email': email,
-                        'status': status,
-                        'asset': assetinformation[1],
-                        'assetname': assetinformation[2],
-                        'assetdescription': assetinformation[3],
-                        'assetbrand': assetinformation[4],
-                        'assetmodel': assetinformation[5],
-                        'assetstatus': assetinformation[6],
-                        'assetlocation': assetinformation[7],
-                        'assetcategory': assetinformation[8],
-                        'assetsn': assetinformation[9],
-                        'assetphoto': assetinformation[10],
-                        'admin1': username_admin1[0] if username_admin1 else None,
-                        'admin2': username_admin2[0] if username_admin2 else None,
-                        'statusticket': statusticket,
-                    }
-                    myreport_list.append(loan_data)
+                return response_data, 200
 
-                return myreport_list, 200
+class MyReportDelete(Resource):
+    def put(self, selectedMyReportID):
+        db, lmd = get_db_connection()
+        
+        token = request.headers.get('Authorization')
+        if not token:
+            return {'message': 'Token is missing'}, 401
+
+        payload = verify_token(token)
+
+        if payload:
+            email = payload['email']
+            password = payload['password']
+            if email and password:
+                lmd.execute('UPDATE loandata set deleted = %s where id = %s and email = %s', ('1', selectedMyReportID, email))
+                db.commit()
+                
+                return {'message': 'Successfuly Deleted'}
+            else:
+                return {'message': 'Email Password Not Found'}
+        else:
+            return {'message': 'Token Invalid'}

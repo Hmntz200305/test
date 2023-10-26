@@ -9,6 +9,19 @@ import { useAuth } from '../AuthContext';
 import { CSVLink } from 'react-csv';
 import { useDropzone } from 'react-dropzone';
 
+// 
+import { MaterialReactTable, createMRTColumnHelper, useMaterialReactTable, } from 'material-react-table';
+import { Box, Button, colors } from '@mui/material';
+import FileDownloadIcon from '@mui/icons-material/FileDownload';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { mkConfig, generateCsv, download } from 'export-to-csv';
+import { jsPDF } from 'jspdf';
+import autoTable from 'jspdf-autotable';
+import { DataGrid } from '@mui/x-data-grid';
+import dayjs from 'dayjs';
+
+
 const ListAsset = () => {
   const { token, Role, DataListAsset, refreshAssetData, refreshStatusList, StatusOptions, LocationOptions, refreshLocationList, refreshCategoryList, CategoryOptions } = useAuth();
   const [showEdit, setShowEdit] = useState(false);
@@ -127,7 +140,137 @@ const ListAsset = () => {
     document.body.removeChild(a);
 };
   
-  
+
+
+
+
+
+  // NEW TABLE
+const columnHelper = createMRTColumnHelper();
+const columnsNew = [
+  columnHelper.accessor('no', {
+    header: 'No',
+    size: 40,
+  }),
+  columnHelper.accessor('id', {
+    header: 'ID Asset',
+    size: 120,
+  }),
+  columnHelper.accessor('name', {
+    header: 'Name',
+    size: 120,
+  }),
+  columnHelper.accessor('description', {
+    header: 'Description',
+    size: 300,
+  }),
+  columnHelper.accessor('brand', {
+    header: 'Brand',
+  }),
+  columnHelper.accessor('model', {
+    header: 'Model',
+    size: 220,
+  }),
+  columnHelper.accessor('status', {
+    header: 'Status',
+    size: 220,
+  }),
+  columnHelper.accessor('location', {
+    header: 'Location',
+    size: 220,
+  }),
+  columnHelper.accessor('category', {
+    header: 'Category',
+    size: 220,
+  }),
+  columnHelper.accessor('sn', {
+    header: 'SN',
+    size: 220,
+  }),
+  columnHelper.accessor('image_path', {
+    header: 'Photo',
+    size: 200,
+    enableSorting: false,
+    enableColumnFilter: false,
+    Cell: ({row}) => {
+      return (
+        <div>
+          <img src={row.image_path} alt="Asset" className='rounded-lg shadow p-0.5 shadow-black' />
+        </div>
+      );
+    },
+  }),  
+  columnHelper.accessor('action', {
+    header: 'Action',
+    size: 120,
+    enableSorting: false,
+    enableColumnFilter: false,
+    Cell: ({row}) => (
+      <div className='text-white'>
+        <button className='bg-green-500 p-2 rounded-lg hover:bg-green-700 m-0.5'>
+          <FontAwesomeIcon icon={faPenToSquare} />
+        </button>
+        <button className='bg-red-500 p-2 rounded-lg hover:bg-red-700 m-0.5'>
+          <FontAwesomeIcon icon={faTrash} />
+        </button>
+      </div>
+      ),
+    }),
+];
+
+const handleExportRowsCsv = (rows) => {
+  const rowData = rows.map((row) => {
+    const dataRow = row.original;
+    return {
+      no: dataRow.no,
+      id: dataRow.id,
+      name: dataRow.name,
+      description: dataRow.description,
+      brand: dataRow.brand,
+      model: dataRow.model,
+      status: dataRow.status,
+      location: dataRow.location,
+      category: dataRow.category,
+      sn: dataRow.sn,
+    };
+  });
+
+  const csvConfig = mkConfig({
+    fieldSeparator: ',',
+    decimalSeparator: '.',
+    useKeysAsHeaders: true,
+  });
+
+  const csv = generateCsv(csvConfig)(rowData);
+  download(csvConfig)(csv);
+};
+
+
+  const handleExportRowsPdf = (rows) => {
+  const doc = new jsPDF();
+  const tableData = rows.map((row) => {
+    const dataRow = row.original;
+    return [dataRow.no, dataRow.id, dataRow.name, dataRow.description, dataRow.brand, dataRow.model, dataRow.status, dataRow.location, dataRow.category, dataRow.sn,];
+  });
+
+  const tableHeaders = ['No', 'ID Asset', 'Name', 'Description', 'Brand', 'Model', 'Status', 'Location', 'Category', 'Serial Number'];
+
+  autoTable(doc, {
+    head: [tableHeaders],
+    body: tableData,
+  });
+
+  doc.save('mrt-pdf-example.pdf');
+};
+
+
+// END NEW TABLE
+
+
+
+
+
+
   const showEditHandler = (row) => {
     setSelectedAsset(row);
     setShowEdit(true);
@@ -461,6 +604,81 @@ const ListAsset = () => {
             highlightOnHover
           />
         </DataTableExtensions>
+        </div>
+
+        <div className='mt-10'>
+          <MaterialReactTable
+              columns={columnsNew}
+              data={DataListAsset}
+              enableRowSelection={true}
+              enableClickToCopy={false}
+              columnFilterDisplayMode= 'popover'
+              paginationDisplayMode= 'pages'
+              positionToolbarAlertBanner= 'bottom'
+              renderTopToolbarCustomActions= {({ table }) => ( 
+              <div className='flex gap-1 flex-wrap p-2'>
+                  <div className='bg-blue-200'>
+                      <Button
+                          disabled={table.getPrePaginationRowModel().rows.length === 0}
+                          onClick={() =>
+                              handleExportRowsCsv(table.getPrePaginationRowModel().rows)
+                          }
+                          startIcon={<FileDownloadIcon />}
+                          >
+                          Export All Rows CSV
+                      </Button>
+
+                      <Button
+                          disabled={table.getRowModel().rows.length === 0}
+                          onClick={() => handleExportRowsCsv(table.getRowModel().rows)}
+                          startIcon={<FileDownloadIcon />}
+                          >
+                          Export Page Rows CSV
+                      </Button>
+
+                      <Button
+                          disabled={
+                              !table.getIsSomeRowsSelected() && !table.getIsAllRowsSelected()
+                          }
+                          onClick={() => handleExportRowsCsv(table.getSelectedRowModel().rows)}
+                          startIcon={<FileDownloadIcon />}
+                          >
+                          Export Selected Rows CSV
+                      </Button>
+                  </div>
+                  
+                  <div className='bg-red-200'>
+                      <Button
+                          disabled={table.getPrePaginationRowModel().rows.length === 0}
+                          onClick={() =>
+                              handleExportRowsPdf(table.getPrePaginationRowModel().rows)
+                          }
+                          startIcon={<FileDownloadIcon />}
+                          >
+                          Export All Rows PDF
+                      </Button>
+
+                      <Button
+                          disabled={table.getRowModel().rows.length === 0}
+                          onClick={() => handleExportRowsPdf(table.getRowModel().rows)}
+                          startIcon={<FileDownloadIcon />}
+                          >
+                          Export Page Rows PDF
+                      </Button>
+
+                      <Button
+                          disabled={
+                              !table.getIsSomeRowsSelected() && !table.getIsAllRowsSelected()
+                          }
+                          onClick={() => handleExportRowsPdf(table.getSelectedRowModel().rows)}
+                          startIcon={<FileDownloadIcon />}
+                          >
+                          Export Selected Rows PDF
+                      </Button>
+                  </div>
+              </div>
+              )}
+          />
         </div>
         
       </div>

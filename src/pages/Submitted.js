@@ -127,7 +127,7 @@ const Submitted = () => {
     const morecolumn = [
       {
           name: 'ID Asset',
-          selector: (row) => row.id,
+          selector: (row) => row.myreport_list.id,
           },
           {
           name: 'Name',

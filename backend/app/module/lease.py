@@ -222,7 +222,7 @@ class TicketApprove(Resource):
                                     db.commit()
                                     lmd.execute('SELECT name from assets where id = %s', (data[0],))
                                     nameasset = lmd.fetchone()[0]
-                                    lmd.execute('INSERT INTO loandata (idticket, idasset, nameasset, leasedate, returndate, username, email, status) VALUES (%s, %s, %s, %s ,%s ,%s, %s ,%s)', (selectedTicketId, data[0], nameasset, data[1], data[2], data[3], data[4], '0'))
+                                    lmd.execute('INSERT INTO loandata (idticket, idasset, nameasset, leasedate, returndate, username, email, status, deleted) VALUES (%s, %s, %s, %s ,%s ,%s, %s ,%s ,%s)', (selectedTicketId, data[0], nameasset, data[1], data[2], data[3], data[4], '0', '0'))
                                     db.commit()
                                     message = Message(f'Peminjaman Barang LMD (Approved)', sender='nakatsuuchiha@gmail.com', recipients=[data[4]])
                                     message.body = f'Ticket Number {selectedTicketId}\n' \

@@ -58,6 +58,7 @@ api.add_resource(VerifyEmail, '/verifyemail/<string:token>')
 api.add_resource(HistoryTicket, '/api/historyticket')
 api.add_resource(HistoryLoanData, '/api/historyloandata')
 api.add_resource(MyReport, '/api/myreport')
+api.add_resource(MyReportDelete, '/api/myreportdelete/<int:selectedMyReportID>')
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

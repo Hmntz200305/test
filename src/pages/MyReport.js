@@ -11,45 +11,97 @@ import { useAuth } from '../AuthContext';
 Modal.setAppElement('#root');
 
 const MyReport = () => {
-     const { refreshMyReport, MyReport } = useAuth();
-     const calculateRemainingTime = () => {
-        const currentDate = new Date(); // Tanggal hari ini
-        const dataWithRemainingTime = fakedata1.map((item) => {
-            const returnDate = new Date(item.return);
-            const timeDiff = returnDate - currentDate;
-            const daysRemaining = Math.ceil(timeDiff / (1000 * 60 * 60 * 24)); // Menghitung selisih hari
-            return {
-                ...item,
-                time: `${daysRemaining} Hari`,
-            };
-        });
-        setFakedata1(dataWithRemainingTime);
-    };
+     const { token, Role, refreshMyReport, MyReport } = useAuth();
+     const [selectedAssetDetails, setSelectedAssetDetails] = useState([]);
+     const [dataWithRemainingTime, setDataWithRemainingTime] = useState([]);
+     const [selectedMyReportID, setselectedMyReportID] = useState(null);
+     const [isLoading, setIsLoading] = useState(false);
+
+     useEffect(() => {
+        const refreshData = async () => {
+            if (Role === 0 || Role === 1 || Role === 2) {
+                await refreshMyReport();
+            }
+        };
+
+        refreshData();
+
+        window.addEventListener("beforeunload", refreshData);
+
+        return () => {
+            window.removeEventListener("beforeunload", refreshData);
+        };
+        // eslint-disable-next-line
+    }, [Role]);
 
     useEffect(() => {
-        calculateRemainingTime();
-    }, []);
+        if (MyReport.myreport_list) {
+            const currentDate = new Date();
+            const dataWithTimeRemaining = MyReport.myreport_list.map((item) => {
+                const returnDate = new Date(item.returndate);
+                const timeDiff = returnDate - currentDate;
+                const daysRemaining = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+                return {
+                    ...item,
+                    timeRemaining: `${daysRemaining} Hari (otomatis)`,
+                };
+            });
+            setDataWithRemainingTime(dataWithTimeRemaining);
+        }
+    }, [MyReport.myreport_list]);
 
     const [showDelete, setShowDelete] = useState(false);
-    const showDeleteHandler = () => {
-        setShowDelete((prev) => !prev);
-    };
 
     // Modal
     const [showModalAsset, setShowModalAsset] = useState(false);
 
-    const showModalAssetHandle = () => {
+    const showMoreDetailHandler = (row) => {
+        setSelectedAssetDetails([row]);
         setShowModalAsset(true);
-    };
+      };
+
     const closeModalAssetHandle = () => {
         setShowModalAsset(false);
     };
 
+    const showDeleteHandler = (id) => {
+        setselectedMyReportID(id);
+        setShowDelete((prev) => !prev);
+    };
+
+    const handleDelete = async (token) => {
+        try {
+          setIsLoading(true);
+    
+          const response = await fetch(
+            `http://sipanda.online:5000/api/myreportdelete/${selectedMyReportID}`,
+            {
+              method: 'PUT',
+              headers: {
+                Authorization: token,
+              },
+            }
+          );
+    
+          if (response.status === 200) {
+            setShowDelete(false);
+            refreshMyReport();
+            setSelectedAssetDetails(null);
+            setselectedMyReportID(null);
+          } else {
+            console.error('Failed to Delete');
+          }
+        } catch (error) {
+          console.error('Error:', error);
+        } finally {
+          setIsLoading(false);
+        }
+      };
 
     const morecolumn = [
         {
             name: 'ID Asset',
-            selector: (row) => row.id,
+            selector: (row) => row.asset,
             },
             {
             name: 'Name',
@@ -57,44 +109,40 @@ const MyReport = () => {
             },
             {
             name: 'Description',
-            selector: (row) => row.description,
+            selector: (row) => row.assetdescription,
             },
             {
             name: 'Brand',
-            selector: (row) => row.brand,
+            selector: (row) => row.assetbrand,
             },
             {
             name: 'Model',
-            selector: (row) => row.model,
+            selector: (row) => row.assetmodel,
             },
             {
             name: 'Status',
-            selector: (row) => row.status,
+            selector: (row) => row.assetstatus,
             },
             {
             name: 'Location',
-            selector: (row) => row.location,
+            selector: (row) => row.assetlocation,
             },
             {
             name: 'Category',
-            selector: (row) => row.category,
+            selector: (row) => row.assetcategory,
             },
             {
             name: 'SN',
-            selector: (row) => row.sn,
+            selector: (row) => row.assetsn,
             },
             {
             name: 'Photo',
             cell: (row) => (
                 <div>
-                <img src={foto} alt="Asset" className='rounded-lg shadow p-0.5 shadow-black' />
+                <img src={row.assetphoto} alt="Asset" className='rounded-lg shadow p-0.5 shadow-black' />
                 </div>
             ),
             },
-    ]
-
-    const moredata = [
-        { id: 'Asset 0001', name: 'Laptop', description: 'leptop gemink gada obat', brand: 'Asus', model: 'Vivobook', status: 'Available', location: 'LMD', category: 'Laptop', sn: '123123123123', photo: '', action: '' },
     ]
 
     const columns = [
@@ -104,44 +152,40 @@ const MyReport = () => {
             },
             {
             name: 'ID Asset',
-            selector: (row) => row.id,
+            selector: (row) => row.asset,
             },
             {
-                name: 'More Detail',
-                cell: (row) => (
-                    <div className='text-white flex items-center justify-center cursor-pointer'>
-                      <button className='bg-gray-800 p-1 rounded-lg' onClick={showModalAssetHandle}>
-                        <FontAwesomeIcon icon={faCircleInfo} size='xl'/>
-                      </button>
-                    </div>
-                  ),
-                },
-            {
             name: 'Lease Date',
-            selector: (row) => row.lease,
+            selector: (row) => row.leasedate,
             },
             {
             name: 'Return Date',
-            selector: (row) => row.return,
+            selector: (row) => row.returndate,
             },
             {
             name: 'Time Remaining',
-            selector: (row) => row.time,
+            selector: (row) => row.timeRemaining,
             },
             {
             name: 'Submitted #1',
             cell: (row) => (
                 <div className='flex flex-col'>
                     <div>
+                      {row.admin1status === 'on Request' ? (
                         <p>Still Submitted...</p>
-                    </div>
-                    <div>
-                        <p>
-                            <span>Super Admin</span>
-                            <span> has</span>
-                            <span className='text-green-500 font-semibold'> Approved</span>
-                            <span className='text-red-500 font-semibold'> Declined</span>
-                        </p>
+                      ) : (
+                        <div>
+                            <p>
+                                <span>{row.admin1} </span>
+                                <span> has </span>
+                                {row.admin1status === 'Approved' ? (
+                                    <span className='text-green-500 font-semibold'>{row.admin1status}</span>
+                                ) : (
+                                    <span className='text-red-500 font-semibold'>{row.admin1status}</span>
+                                )}
+                            </p>
+                        </div>
+                      )}
                     </div>
                 </div>
             ),
@@ -151,15 +195,21 @@ const MyReport = () => {
             cell: (row) => (
                 <div className='flex flex-col'>
                     <div>
-                        <p>Still Submitted..</p>
-                    </div>
-                    <div>
-                        <p>
-                            <span>Admin</span>
-                            <span> has</span>
-                            <span className='text-green-500 font-semibold'> Approved</span>
-                            <span className='text-red-500 font-semibold'> Declined</span>
-                        </p>
+                      {row.admin2status === 'on Request' ? (
+                        <p>Still Submitted...</p>
+                      ) : (
+                        <div>
+                            <p>
+                                <span>{row.admin2} </span>
+                                <span> has </span>
+                                {row.admin2status === 'Approved' ? (
+                                    <span className='text-green-500 font-semibold'>{row.admin2status}</span>
+                                ) : (
+                                    <span className='text-red-500 font-semibold'>{row.admin2status}</span>
+                                )}
+                            </p>
+                        </div>
+                      )}
                     </div>
                 </div>
             ),
@@ -169,42 +219,60 @@ const MyReport = () => {
             cell: (row) => (
                 <div className='flex flex-col'>
                     <div>
-                        <p>Still Submitted..</p>
-                    </div>
-                    <div>
-                        <p>
-                            <span className='text-green-500 font-semibold'> Approved</span>
-                            <span className='text-red-500 font-semibold'> Declined</span>
-                        </p>
+                      {row.statusticket === 'on Request' ? (
+                        <p>Still Submitted...</p>
+                      ) : (
+                        <div>
+                            <p>
+                                {row.statusticket === 'Approved' ? (
+                                    <span className='text-green-500 font-semibold'>{row.statusticket}</span>
+                                ) : (
+                                    <span className='text-red-500 font-semibold'>{row.statusticket}</span>
+                                )}
+                            </p>
+                        </div>
+                      )}
                     </div>
                 </div>
             ),
             },
             {
+                name: 'More Detail',
+                cell: (row) => (
+                    <div className='text-white flex items-center justify-center cursor-pointer'>
+                      <button 
+                        className='bg-gray-800 p-1 rounded-lg' 
+                        onClick={() => showMoreDetailHandler(row)}
+                      >
+                        <FontAwesomeIcon icon={faCircleInfo} size='xl'/>
+                      </button>
+                    </div>
+                  ),
+                },
+            {
             name: 'Action',
             cell: (row) => (
                 <div className='text-white'>
-                    <button className='bg-red-500 p-2 rounded-lg hover:bg-red-700 m-0.5' onClick={showDeleteHandler}>
-                        <FontAwesomeIcon icon={faTrash} />
-                    </button>
+                    {row.statusticket === 'Approved' ? (
+                        <button 
+                            className='bg-red-500 p-2 rounded-lg hover:bg-red-700 m-0.5' 
+                            onClick={() => showDeleteHandler(row.id)}
+                        >
+                            <FontAwesomeIcon icon={faTrash} />
+                        </button>
+                    ) : (
+                        <button 
+                            className='bg-red-500 p-2 rounded-lg hover:bg-red-700 m-0.5' 
+                            onClick={() => showDeleteHandler(row.id)} disabled
+                        >
+                            <FontAwesomeIcon icon={faTrash} />
+                        </button>
+                    )}
                 </div>
                 ),
             },
     ]
     
-    const [fakedata1, setFakedata1] = useState([
-        { no: '1', id: 'Laptop', lease: '2023-10-11', return: '2023-10-20', time: '10' },
-        { no: '2', id: 'Printer', lease: '2023-10-12', return: '2023-10-21', time: '9' },
-        { no: '3', id: 'Monitor', lease: '2023-10-13', return: '2023-10-22', time: '8' },
-        { no: '4', id: 'Keyboard', lease: '2023-10-14', return: '2023-10-23', time: '7' },
-        { no: '5', id: 'Mouse', lease: '2023-10-15', return: '2023-10-24', time: '6' },
-        { no: '6', id: 'Tablet', lease: '2023-10-16', return: '2023-10-25', time: '5' },
-        { no: '7', id: 'Smartphone', lease: '2023-10-17', return: '2023-10-26', time: '4' },
-        { no: '8', id: 'Projector', lease: '2023-10-18', return: '2023-10-27', time: '3' },
-        { no: '9', id: 'Scanner', lease: '2023-10-19', return: '2023-10-28', time: '2' },
-        { no: '10', id: 'Headset', lease: '2023-10-20', return: '2023-10-29', time: '1' }
-      ]);      
-
     return (
         <>
             <div className='p-2'>
@@ -222,8 +290,19 @@ const MyReport = () => {
                     </div>
                     
                     <div className="flex space-x-4 mt-5">
-                    <button className="main-btn hover:bg-slate-600 text-white font-semibold py-2 px-4 rounded" onClick={showDeleteHandler}>Cancel</button>
-                    <button className="main-btn hover:bg-slate-600 text-white font-semibold py-2 px-4 rounded">Delete</button>
+                    <button 
+                    className="main-btn hover:bg-slate-600 text-white font-semibold py-2 px-4 rounded" 
+                    onClick={showDeleteHandler}
+                    >
+                        Cancel
+                    </button>
+                    <button 
+                    className="main-btn hover:bg-slate-600 text-white font-semibold py-2 px-4 rounded"
+                    onClick={() => handleDelete(token)}
+                    disabled={isLoading}
+                    >
+                        {isLoading ? 'Proses...' : 'Delete'}
+                    </button>
                     </div>
                 </div>
             </div>
@@ -233,8 +312,14 @@ const MyReport = () => {
                 <div className='p-2 bg-white'>
                     <div className='p-3 flex gap-1'>
                         <div className='flex gap-1'>
-                            <h3>Jumlah Asset yang anda pinjam : </h3>
-                            <h3 className='font-semibold bg-[#efefef] rounded'> eheheh</h3>
+                            <h3>Jumlah Asset yang sedang anda pinjam : </h3>
+                            <h3 className='font-semibold bg-[#efefef] rounded'> {MyReport.onloan}</h3>
+                        </div>   
+                    </div>
+                    <div className='p-3 flex gap-1'>
+                        <div className='flex gap-1'>
+                            <h3>Jumlah Asset yang sedang anda ajukan : </h3>
+                            <h3 className='font-semibold bg-[#efefef] rounded'> {MyReport.onrequest}</h3>
                         </div>   
                     </div>
                 </div>
@@ -251,7 +336,7 @@ const MyReport = () => {
                 <h1>Ini adalah detail lengkap asset</h1>
                 <DataTable
                     columns={morecolumn}
-                    data={moredata}
+                    data={selectedAssetDetails}
                     highlightOnHover
                 />
                 <button onClick={closeModalAssetHandle} className="main-btn mt-4">
@@ -261,7 +346,7 @@ const MyReport = () => {
             <div className='p-2'>
                 <DataTableExtensions
                 columns={columns}
-                data={fakedata1}
+                data={dataWithRemainingTime}
                 fileName='hehe'
                 filter
                 print
