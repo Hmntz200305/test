@@ -21,8 +21,9 @@ import MyReport from './pages/MyReport';
 import Test from './pages/Test';
 import { AuthProvider, useAuth } from './AuthContext';
 
+
 function Home() {
-  const { loggedIn, logout, username, Role, Roles, email } = useAuth();
+  const { loggedIn, logout, username, Role, Roles, email, Notification, setNotification, setNotificationStatus, NotificationStatus } = useAuth();
 
   // Declare Variable
   const [activeMenu, setActiveMenu] = useState(null);
@@ -40,57 +41,26 @@ function Home() {
     setIsSidebarOpen(!isSidebarOpen);
   };
 
-  // Animasi Notif
-  const [showNotifications, setShowNotifications] = useState(false);
+  if (NotificationStatus) {
+    setTimeout(() => {
+      setNotificationStatus(false);
+      setNotification('');
+    }, 4000);
+  } else {
+    setNotificationStatus(false);
+    setNotification('');
+  }
 
-  useEffect(() => {
-    if (showNotifications) {
-      setTimeout(() => {
-        setShowNotifications(false);
-      }, 4000);
-    }
-  });
-
-  const handleNotification = () => {
-    setShowNotifications(true);
-  };
-
-  const [showPopoverNotif, setShowPopoverNotif] = useState(false);
-  const [isPopoverLocked, setIsPopoverLocked] = useState(false);
-
-  const handleMouseEnter = () => {
-    if (!isPopoverLocked) {
-      setShowPopoverNotif(true);
-    }
-  };
-
-  const handleMouseLeave = () => {
-    if (!isPopoverLocked && !isPopoverLocked) {
-      setShowPopoverNotif(false);
-    }
-  };
-
-  const handleClick = () => {
-    if (showPopoverNotif) {
-      setIsPopoverLocked(!isPopoverLocked );
-      // handleMouseEnter (false);
-    } else {
-      setShowPopoverNotif(true);
-    }
-  };
-
-  const [showPopoverNotifDeleteBerhasil, setShowPopoverNotifDeleteBerhasil] = useState(false);
-  const togglePopoverNotifDeleteBerhasil = () => {
-    setShowPopoverNotifDeleteBerhasil(!showPopoverNotifDeleteBerhasil);
-  };
-  const [showPopoverNotifDeleteGagal, setShowPopoverNotifDeleteGagal] = useState(false);
-  const togglePopoverNotifDeleteGagal = () => {
-    setShowPopoverNotifDeleteGagal(!showPopoverNotifDeleteGagal);
-  };
-  const [showPopoverNotifDeleteWarning, setShowPopoverNotifDeleteWarning] = useState(false);
-  const togglePopoverNotifDeleteWarning = () => {
-    setShowPopoverNotifDeleteWarning(!showPopoverNotifDeleteWarning);
-  };
+  // useEffect(() => {
+  //   if (Notification) {
+  //     setTimeout(() => {
+  //       setNotification('');
+  //     }, 4000);
+  //   } else {
+  //     setNotification('');
+  //   }
+  // }, [Notification]); // Tambahkan Notification ke dalam dependencies
+  
 
   // popover profile
   const [showPopoverProfile, setShowPopoverProfile] = useState(false);
@@ -203,119 +173,16 @@ function Home() {
               </div>
             )}
             { /* Notif */}
-            <div className='ml-4'>
-                  <button onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} onClick={handleClick} className={`bg-slate-600 hover:bg-slate-700 w-[40px] h-[40px] rounded-lg`} style={{ backgroundColor: isPopoverLocked ? 'white' : '', color: isPopoverLocked ? '#334155' : '',  }}>
-                    <FontAwesomeIcon icon={faBell} shake size='lg' />
-                  </button>
-            </div>
-            {showPopoverNotif && (
-              <div className='flex flex-col max-h-screen overflow-y-scroll absolute top-16 right-1 gap-1'>
-                {/* - Berhasil- */}
-                <div class="relative">
-                  <div class="flex items-center lg:w-[300px] md:w-[250px] sm:w-[200px] p-4 opacity-90 rounded-lg shadow bg-gray-800">
-                    <div class="flex bg-green-500 items-center justify-center flex-shrink-0 w-8 h-8 text-white rounded-lg">
-                      <FontAwesomeIcon icon={faThumbsUp} />
-                    </div>
-                    <div class="ml-3 text-left text-sm font-normal break-all">Asset berhasil diajukan :)</div>
-                    <button type="button" class="text-gray-400 hover:text-gray-900 rounded-lg p-2 absolute top-0 right-1 inline-flex h-6 w-6" onClick={togglePopoverNotifDeleteBerhasil}>
-                      <FontAwesomeIcon icon={faTimes} />
-                    </button>
-                  </div>
-                  {showPopoverNotifDeleteBerhasil && (
-                  <div class="flex flex-col items-center lg:w-[300px] md:w-[250px] sm:w-[200px]  opacity-90 rounded-lg shadow bg-gray-800">
-                    <div class="ml-3 text-left text-sm font-normal break-all">Ingin menghapus notifikasi ini?</div>
-                    <div class="flex justify-center space-x-4 p-2">
-                      <button type="button" class="text-green-400 hover:text-green-900 rounded-lg w-auto flex-grow">Yes</button>
-                      <button type="button" class="text-red-400 hover:text-red-900 rounded-lg w-auto flex-grow" onClick={togglePopoverNotifDeleteBerhasil}>No</button>
+              {NotificationStatus ? (
+                  <div className='flex flex-col max-h-screen absolute top-16 right-1 gap-1'>
+                    <div class="flex items-center lg:w-[300px] md:w-[250px] sm:w-[200px] p-4 opacity-90 rounded-lg shadow bg-gray-900">
+                      <div class="flex bg-green-500 items-center justify-center flex-shrink-0 w-8 h-8 text-white rounded-lg">
+                        <FontAwesomeIcon icon={faThumbsUp} />
+                      </div>
+                      <div class="ml-3 text-left text-sm font-normal break-all">{Notification}</div>
                     </div>
                   </div>
-                  )}
-                </div>
-                {/* -Berhasil- */}
-                {/* -Gagal- */}
-                <div class="relative">
-                  <div class="flex items-center lg:w-[300px] md:w-[250px] sm:w-[200px] p-4 opacity-90 rounded-lg shadow bg-gray-800">
-                    <div class="flex bg-red-500 items-center justify-center flex-shrink-0 w-8 h-8 text-white rounded-lg">
-                      <FontAwesomeIcon icon={faThumbsDown} />
-                    </div>
-                    <div class="ml-3 text-left text-sm font-normal break-all">Asset gagal diajukan :(</div>
-                    <button type="button" class="text-gray-400 hover:text-gray-900 rounded-lg p-2 absolute top-0 right-1 inline-flex h-6 w-6" onClick={togglePopoverNotifDeleteGagal}>
-                      <FontAwesomeIcon icon={faTimes} />
-                    </button>
-                  </div>
-                  {showPopoverNotifDeleteGagal && (
-                  <div class="flex flex-col items-center lg:w-[300px] md:w-[250px] sm:w-[200px]  opacity-90 rounded-lg shadow bg-gray-800">
-                    <div class="ml-3 text-left text-sm font-normal break-all">Ingin menghapus notifikasi ini?</div>
-                    <div class="flex justify-center space-x-4 p-2">
-                      <button type="button" class="text-green-400 hover:text-green-900 rounded-lg w-auto flex-grow">Yes</button>
-                      <button type="button" class="text-red-400 hover:text-red-900 rounded-lg w-auto flex-grow" onClick={togglePopoverNotifDeleteGagal}>No</button>
-                    </div>
-                  </div>
-                  )}
-                </div>
-                {/* -Gagal- */}
-                {/* -Warning- */}
-                <div class="relative">
-                  <div class="flex items-center lg:w-[300px] md:w-[250px] sm:w-[200px] p-4 opacity-90 rounded-lg shadow bg-gray-900">
-                    <div class="flex bg-yellow-500 items-center justify-center flex-shrink-0 w-8 h-8 text-white rounded-lg">
-                      <FontAwesomeIcon icon={faTriangleExclamation} />
-                    </div>
-                    <div class="ml-3 text-left text-sm font-normal break-all">Warning !!! (Pemberitahuan)</div>
-                    <button type="button" class="text-gray-400 hover:text-gray-900 rounded-lg p-2 absolute top-0 right-1 inline-flex h-6 w-6" onClick={togglePopoverNotifDeleteWarning}>
-                      <FontAwesomeIcon icon={faTimes} />
-                    </button>
-                  </div>
-                  {showPopoverNotifDeleteWarning && (
-                  <div class="flex flex-col items-center lg:w-[300px] md:w-[250px] sm:w-[200px]  opacity-90 rounded-lg shadow bg-gray-900 border-t-2 border-gray-800">
-                    <div class="ml-3 text-left text-sm font-normal break-all">Ingin menghapus notifikasi ini?</div>
-                    <div class="flex justify-center space-x-4 p-2">
-                      <button type="button" class="text-green-400 hover:text-green-900 rounded-lg w-auto flex-grow">Yes</button>
-                      <button type="button" class="text-red-400 hover:text-red-900 rounded-lg w-auto flex-grow" onClick={togglePopoverNotifDeleteWarning}>No</button>
-                    </div>
-                  </div>
-                  )}
-                </div>
-                {/* -Warning- */}
-              </div>      
-                )}
-
-              <button className='bg-red-500 ml-2 rounded' onClick={handleNotification}>Click</button>
-              {showNotifications && (
-                <div className='flex flex-col max-h-screen absolute top-16 right-1 gap-1'>
-                {/* - Berhasil- */}
-                <div className={`relative ${showNotifications ? "slide-in" : "slide-out"}`}>
-                  <div class="flex items-center lg:w-[300px] md:w-[250px] sm:w-[200px] p-4 opacity-90 rounded-lg shadow bg-gray-900">
-                    <div class="flex bg-green-500 items-center justify-center flex-shrink-0 w-8 h-8 text-white rounded-lg">
-                      <FontAwesomeIcon icon={faThumbsUp} />
-                    </div>
-                    <div class="ml-3 text-left text-sm font-normal break-all">Asset berhasil diajukan :)</div>
-                  </div>
-                </div>
-                {/* -Berhasil- */}
-                {/* -Gagal- */}
-                <div className={`relative ${showNotifications ? "slide-in" : "slide-out"}`}>
-                  <div class="flex items-center lg:w-[300px] md:w-[250px] sm:w-[200px] p-4 opacity-90 rounded-lg shadow bg-gray-900">
-                    <div class="flex bg-red-500 items-center justify-center flex-shrink-0 w-8 h-8 text-white rounded-lg">
-                      <FontAwesomeIcon icon={faThumbsDown} />
-                    </div>
-                    <div class="ml-3 text-left text-sm font-normal break-all">Asset gagal diajukan :(</div>
-                  </div>
-                </div>
-                {/* -Gagal- */}
-                {/* -Warning- */}
-                <div className={`relative ${showNotifications ? "slide-in" : "slide-out"}`}>
-                  <div class="flex items-center lg:w-[300px] md:w-[250px] sm:w-[200px] p-4 opacity-90 rounded-lg shadow bg-gray-900">
-                    <div class="flex bg-yellow-500 items-center justify-center flex-shrink-0 w-8 h-8 text-white rounded-lg">
-                      <FontAwesomeIcon icon={faTriangleExclamation} />
-                    </div>
-                    <div class="ml-3 text-left text-sm font-normal break-all">Warning !!!</div>
-                  </div>
-                </div>
-                {/* -Warning- */}
-              </div>
-              )}
-
-
+              ) : null }
           </div>
         </div>
       ) : null }

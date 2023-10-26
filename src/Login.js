@@ -3,13 +3,26 @@ import { faLock } from '@fortawesome/free-solid-svg-icons';
 import { faEnvelope } from '@fortawesome/free-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useAuth } from './AuthContext';
+import Modal from 'react-modal';
+Modal.setAppElement('#root');
 
 const Login = () => {
-    const { login } = useAuth();
+    const { login, setNotification, Notification, setNotificationStatus } = useAuth();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [FEmail, setFEmail] = useState("");
+    const [FUsername, setFUsername] = useState("");
+    const [FPassword, setFPassword] = useState("");
 
-
+    // Modal
+    const [showModalForgot, setShowModalForgot] = useState(false);
+    const showModalForgotHandle = () => {
+      setShowModalForgot(true);
+    }
+    const closeModalForgotHandle = () => {
+      setShowModalForgot(false);
+    }
+  
     // POST ke API
     const handleLogin = async () => {
         try {
@@ -24,7 +37,8 @@ const Login = () => {
           if (response.status === 200) {
             const data = await response.json();
             login(data);
-            console.log("Login Success");
+            setNotification(data.message);
+            setNotificationStatus(true);
           } else {
             console.log("Login failed. Please check your credentials.");
           }
@@ -33,14 +47,33 @@ const Login = () => {
         }
       };
 
+      const handleForgotPassword = async () => {
+        try {
+          const response = await fetch("http://sipanda.online:5000/api/forgotpassword", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ FUsername, FEmail, FPassword }),
+          });
+    
+          if (response.status === 200) {
+            const data = await response.json();
+            setFUsername('');
+            setFEmail('');
+            setFPassword('');
+            console.log("Email Recovery sending");
+          } else {
+            console.log("Email Recovery Failed");
+          }
+        } catch (error) {
+          console.error("Error:", error);
+        }
+      };
+
     return (
-        <div className=''>
-            <div className='p-2'>
-                <div className='bg-black mb-5 rounded-2xl p-4 shadow'>
-                    <h2 className='text-white'>Selamat datang di Login page :)</h2>
-                </div>
-            </div>
-            <div className=" flex justify-center items-center p-3">
+        <div className='bg-blue-500'>
+            <div className=" flex justify-center items-center min-h-screen p-3">
                 <div className="bg-white w-full max-w-md p-8 rounded-lg shadow-lg">
                     <h1 className="text-2xl font-semibold text-center mb-12">LOGIN</h1>
                     <div className="space-y-4">
@@ -80,6 +113,7 @@ const Login = () => {
                                 />
                             </div>
                         </div>
+                       
                         <button
                           type="submit"
                           onClick={handleLogin}
@@ -88,11 +122,63 @@ const Login = () => {
                           Login
                         </button>
                         <div className="text-center">
-                            <a href='/'><button className="text-black hover:underline focus:outline-none">Back</button></a>
+                            <button className="text-black hover:underline focus:outline-none" onClick={showModalForgotHandle}>Forgot password?</button>
                         </div>
                     </div>
-                    <div id="message"></div>
                 </div>
+                <Modal
+                  isOpen={showModalForgot}
+                  onRequestClose={closeModalForgotHandle}
+                  contentLabel="Contoh Modal"
+                  overlayClassName="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center"
+                  className="modal-content bg-white w-1/2 p-4 rounded shadow-md"
+                  shouldCloseOnOverlayClick={false}
+                  >
+                  <div className='p-2'>
+                    <div className="flex flex-col items-center justify-center bg-white p-2 shadow-xl rounded-2xl">
+                        <div className='flex flex-col text-center mb-2'>
+                            <h1 className="text-2xl font-semibold">Select Action</h1>
+                            <p>Silahkan masukan Data anda sebelumnya</p>
+                        </div>
+                        <div className='form-group'>
+                            <label className='label-text'>Username</label>
+                            <input 
+                            className='form-input pl-5' 
+                            placeholder='Masukan Username' 
+                            value={FUsername}
+                            onChange={(e) => setFUsername(e.target.value)}
+                            required
+                            />
+                        </div>
+                        <div className='form-group'>
+                            <label className='label-text'>Email</label>
+                            <input 
+                            className='form-input pl-5' 
+                            placeholder='Masukan Email' 
+                            value={FEmail}
+                            onChange={(e) => setFEmail(e.target.value)}
+                            required
+                            />
+                        </div>
+                        <div className='form-group'>
+                            <label className='label-text'>Password</label>
+                            <input 
+                            type='password'
+                            className='form-input pl-5' 
+                            placeholder='Masukan New Password' 
+                            value={FPassword}
+                            onChange={(e) => setFPassword(e.target.value)}
+                            required
+                            />
+                        </div>
+                        <div className="flex space-x-4 mt-5 mb-2">
+                            <button className="main-btn hover:bg-slate-600 text-white font-semibold py-2 px-4 rounded" onClick={closeModalForgotHandle}>Cancel</button>
+                            <button className="main-btn hover:bg-slate-600 text-white font-semibold py-2 px-4 rounded" onClick={handleForgotPassword}>Submit</button>
+                        </div>
+                    </div>
+                  </div>
+                </Modal>
+                
             </div>
         </div>
     )

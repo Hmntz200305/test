@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useAuth } from '../AuthContext';
 
 const AddAsset = () => {
-    const { token, Role, refreshAssetData, refreshStatusList, StatusOptions, refreshLocationList, LocationOptions, refreshCategoryList, CategoryOptions } = useAuth();
+    const { token, Role, refreshAssetData, refreshStatusList, StatusOptions, refreshLocationList, LocationOptions, refreshCategoryList, CategoryOptions, setNotification, setNotificationStatus } = useAuth();
     const [showStatus, setShowStatus] = useState(false);
     const [showLocation, setShowLocation] = useState(false);
     const [showCategory, setShowCategory] = useState(false);
@@ -72,6 +72,9 @@ const AddAsset = () => {
         });
 
         if (response.status === 200) {
+          const data = await response.json();
+          setNotification(data.message);
+          setNotificationStatus(true);
           refreshAssetData();
           setaddAssetID('');
           setaddAssetName('');

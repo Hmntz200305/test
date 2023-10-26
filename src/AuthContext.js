@@ -29,6 +29,8 @@ export const AuthProvider = ({ children }) => {
   const [HistoryTicket, setHistoryTicket] = useState([]);
   const [HistoryLoanData, setHistoryLoanData] = useState([]);
   const [MyReport, setMyReport] = useState([]);
+  const [Notification, setNotification] = useState([]);
+  const [NotificationStatus, setNotificationStatus] = useState(false);
 
   useEffect(() => {
     async function fetchData() {
@@ -257,7 +259,7 @@ export const AuthProvider = ({ children }) => {
   }
   
   return (
-    <AuthContext.Provider value={{ token, email, username, loggedIn, login, logout, refreshAssetData, DataListAsset, refreshStatusList, StatusOptions, refreshLocationList, LocationOptions, refreshCategoryList, CategoryOptions, refreshManageUser, ManageUserData, Role, DataListAssetExcept, refreshAssetDataExcept, AdminList, refreshAdminList, SubmitedList, refreshSubmitedList, refreshDashboardInfo, DashboardInfo, onRequest, inLoans, CountinLoans, refreshDataLoan, DataLoan, Roles, refreshHistoryTicket, HistoryTicket, refreshHistoryLoanData, HistoryLoanData, refreshMyReport, MyReport }}>
+    <AuthContext.Provider value={{ token, email, username, loggedIn, login, logout, refreshAssetData, DataListAsset, refreshStatusList, StatusOptions, refreshLocationList, LocationOptions, refreshCategoryList, CategoryOptions, refreshManageUser, ManageUserData, Role, DataListAssetExcept, refreshAssetDataExcept, AdminList, refreshAdminList, SubmitedList, refreshSubmitedList, refreshDashboardInfo, DashboardInfo, onRequest, inLoans, CountinLoans, refreshDataLoan, DataLoan, Roles, refreshHistoryTicket, HistoryTicket, refreshHistoryLoanData, HistoryLoanData, refreshMyReport, MyReport, setNotification, Notification, setNotificationStatus, NotificationStatus }}>
       {children}
     </AuthContext.Provider>
   );

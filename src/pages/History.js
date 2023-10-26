@@ -50,7 +50,7 @@ const History = () => {
     const showMoreDetailHandler = (row) => {
         setSelectedAssetDetails([row]);
         setShowModalTicket(true);
-      };
+    };
       
     const Ticket = [
         {

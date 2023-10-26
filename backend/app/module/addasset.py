@@ -65,6 +65,7 @@ class AddAsset(Resource):
                         lmd.execute("INSERT INTO assets (asset, name, description, brand, model, status, location, category, serialnumber, photo) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", (ids, nama, deskripsi, brand, model, status, lokasi, kategori, sn, image_path,))
                         db.commit()
                         lmd.close()
+                        return {"message": "Asset successfully added with Photo"}, 200
                     else:
                         image_path = ('http://sipanda.online:5000/static/Default/images.jfif')
                         lmd.execute("INSERT INTO assets (asset, name, description, brand, model, status, location, category, serialnumber, photo) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", (ids, nama, deskripsi, brand, model, status, lokasi, kategori, sn, image_path))

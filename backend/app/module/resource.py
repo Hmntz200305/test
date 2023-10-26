@@ -8,3 +8,4 @@ from app.module.dashboard import DashboardInfo
 from app.module.returns import inLoanAssetList, ReturnAsset
 from app.module.history import HistoryTicket, HistoryLoanData
 from app.module.myreport import MyReport, MyReportDelete
+from app.module.forgotpassword import ForgotPassword, VerifyEmailForgotPw

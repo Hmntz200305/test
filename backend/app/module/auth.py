@@ -52,7 +52,7 @@ class Login(Resource):
                     if fetch:
                         username, email, role = fetch[0], fetch[1], fetch[2]
                         token = generate_token(email, md5password)
-                        return {'token': token, 'username': username, 'email': email, 'role': role}
+                        return {'message': 'Berhasil Login', 'token': token, 'username': username, 'email': email, 'role': role}
                     else:
                         return {'message': 'Login failed: Email not found or incorrect password'}, 401
                 else:
