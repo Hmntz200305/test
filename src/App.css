@@ -132,12 +132,18 @@ menu-item i {
     /* color: #666; */
 }
 
-.slide-in {
-    animation: slideIn 1s forwards;
+.notification {
+    transform: translateX(100%); /* Initial position for slide-out */
+    animation-duration: 1s; /* Menyesuaikan durasi animasi dengan JavaScript */
+    animation-fill-mode: forwards; /* Tetapkan elemen dalam posisi akhir animasi */
+  }
+  
+  .slide-in {
+    animation-name: slideIn;
   }
   
   .slide-out {
-    animation: slideOut 1s forwards;
+    animation-name: slideOut;
   }
   
   @keyframes slideIn {

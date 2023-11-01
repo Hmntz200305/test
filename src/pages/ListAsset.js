@@ -23,7 +23,7 @@ import dayjs from 'dayjs';
 
 
 const ListAsset = () => {
-  const { token, Role, DataListAsset, refreshAssetData, refreshStatusList, StatusOptions, LocationOptions, refreshLocationList, refreshCategoryList, CategoryOptions } = useAuth();
+  const { token, Role, DataListAsset, refreshAssetData, refreshStatusList, StatusOptions, LocationOptions, refreshLocationList, refreshCategoryList, CategoryOptions, setNotification, setNotificationInfo, setNotificationStatus } = useAuth();
   const [showEdit, setShowEdit] = useState(false);
   const [showDelete, setShowDelete] = useState(false);
   const [selectedAssetId, setSelectedAssetId] = useState(null);
@@ -69,46 +69,57 @@ const ListAsset = () => {
       formData.append('addAssetImage', fileInput); 
     }
 
-    fetch(`http://sipanda.online:5000/api/edit-asset/${selectedAsset.no}`, {
-      method: 'PUT',
-      headers: {
-        Authorization: token,
-      },
-      body: formData,
-    })
-      .then((response) => {
-        if (response.status === 200) {
-          setShowEdit(false);
-          refreshAssetData();
-        } else {
-          console.error('Failed to edit asset');
-        }
-      })
-      .catch((error) => {
-        console.error('Error:', error);
+    try {
+      const response = await fetch(`http://sipanda.online:5000/api/edit-asset/${selectedAsset.no}`, {
+        method: 'PUT',
+        headers: {
+          Authorization: token,
+        },
+        body: formData,
       });
-  };  
+      
+      if (response.status === 200) {
+        const data = await response.json();
+        setNotification(data.message);
+        setNotificationStatus(true);
+        setShowEdit(false);
+        refreshAssetData();
+      } else {
+        const data = await response.json();
+        setNotification(data.message);
+        setNotificationStatus(true);
+        setNotificationInfo('Error');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  }
+    
+  const deleteAsset = async (id) => {
+    try {
+      const response = await fetch(`http://sipanda.online:5000/api/delete-asset/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
 
-  const deleteAsset = (id) => {
-    fetch(`http://sipanda.online:5000/api/delete-asset/${id}`, {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    })
-      .then((response) => {
-        if (response.status === 200) {
-          setShowDelete(false);
-          refreshAssetData();
-        } else {
-          console.error('Failed to delete asset');
-        }
-      })
-      .catch((error) => {
-        console.error('Error:', error);
-      });
+      if (response.status === 200) {
+        const data = await response.json();
+        setNotification(data.message);
+        setNotificationStatus(true);
+        setShowDelete(false);
+        refreshAssetData();
+      } else {
+        const data = await response.json();
+        setNotification(data.message);
+        setNotificationStatus(true);
+        setNotificationInfo('Error');
+      } 
+    } catch (error) {
+      console.error('Error:', error);
+    }
   };
-
 
   const [uploadedFile, setUploadedFile] = useState(null);
   const handleUpload = (acceptedFiles) => {
@@ -192,14 +203,10 @@ const columnsNew = [
     size: 200,
     enableSorting: false,
     enableColumnFilter: false,
-    Cell: ({row}) => {
-      return (
-        <div>
-          <img src={row.image_path} alt="Asset" className='rounded-lg shadow p-0.5 shadow-black' />
-        </div>
-      );
-    },
-  }),  
+    Cell: ({ row }) => (
+      <img src={row.original.image_path} alt="Asset" style={{ width: '70px', height: 'auto' }} />
+    ),
+  }),
   columnHelper.accessor('action', {
     header: 'Action',
     size: 120,
@@ -264,12 +271,7 @@ const handleExportRowsCsv = (rows) => {
 };
 
 
-// END NEW TABLE
-
-
-
-
-
+// END NEW TABLE`
 
   const showEditHandler = (row) => {
     setSelectedAsset(row);

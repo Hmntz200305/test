@@ -9,7 +9,7 @@ import foto from '../resources/img/aset2.jpg';
 Modal.setAppElement('#root');
 
 const Submitted = () => {
-    const { token, Role, SubmitedList, refreshSubmitedList } = useAuth();
+    const { token, Role, SubmitedList, refreshSubmitedList, setNotification, setNotificationStatus } = useAuth();
     const [showApprove, setShowApprove] = useState(false);
     const [showDecline, setShowDecline] = useState(false);
     const [selectedTicketId, setSelectedTicketId] = useState(null);
@@ -68,13 +68,17 @@ const Submitted = () => {
         );
   
         if (response.status === 200) {
+          const data = await response.json();
+          setNotification(data.message);
+          setNotificationStatus(true);
           setShowApprove(false);
           refreshSubmitedList();
           setSelectedTicketId(null);
           setSelectedTicketingAdmin(null);
           setSelectedTicketSenderName(null);
         } else {
-          console.error('Failed to approve');
+          setNotification('Failed to approve');
+          setNotificationStatus(true);
         }
       } catch (error) {
         console.error('Error:', error);
@@ -98,13 +102,17 @@ const Submitted = () => {
         );
   
         if (response.status === 200) {
+          const data = await response.json();
+          setNotification(data.message);
+          setNotificationStatus(true);
           setShowDecline(false);
           refreshSubmitedList();
           setSelectedTicketId(null);
           setSelectedTicketingAdmin(null);
           setSelectedTicketSenderName(null);
         } else {
-          console.error('Failed to decline');
+          setNotification('Failed');
+          setNotificationStatus(true);
         }
       } catch (error) {
         console.error('Error:', error);

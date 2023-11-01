@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useAuth } from '../AuthContext';
 
 const AddAsset = () => {
-    const { token, Role, refreshAssetData, refreshStatusList, StatusOptions, refreshLocationList, LocationOptions, refreshCategoryList, CategoryOptions, setNotification, setNotificationStatus } = useAuth();
+    const { token, Role, refreshAssetData, refreshStatusList, StatusOptions, refreshLocationList, LocationOptions, refreshCategoryList, CategoryOptions, setNotification, setNotificationStatus, setNotificationInfo } = useAuth();
     const [showStatus, setShowStatus] = useState(false);
     const [showLocation, setShowLocation] = useState(false);
     const [showCategory, setShowCategory] = useState(false);
@@ -88,7 +88,10 @@ const AddAsset = () => {
           setFileInput('');
           setFileInput(null);
         } else {
-          console.log("unauthorized.");
+          const data = await response.json();
+          setNotification(data.message);
+          setNotificationStatus(true);
+          setNotificationInfo('Error');
         }
       } catch (error) {
         console.error("Error:", error);
@@ -108,10 +111,16 @@ const AddAsset = () => {
         });
   
         if (response.status === 200) {
+          const data = await response.json();
+          setNotification(data.message);
+          setNotificationStatus(true);
           refreshStatusList();
           setnewStatus('');
         } else {
-          console.log("unauthorized.");
+          const data = await response.json();
+          setNotification(data.message);
+          setNotificationStatus(true);
+          setNotificationInfo('Error');
         }
       } catch (error) {
         console.error("Error:", error);
@@ -130,10 +139,16 @@ const AddAsset = () => {
         });
   
         if (response.status === 200) {
+          const data = await response.json();
+          setNotification(data.message);
+          setNotificationStatus(true);
           refreshLocationList();
           setnewLocation('');
         } else {
-          console.log("unauthorized.");
+          const data = await response.json();
+          setNotification(data.message);
+          setNotificationStatus(true);
+          setNotificationInfo('Error');
         }
       } catch (error) {
         console.error("Error:", error);
@@ -152,10 +167,16 @@ const AddAsset = () => {
         });
   
         if (response.status === 200) {
+          const data = await response.json();
+          setNotification(data.message);
+          setNotificationStatus(true);
           refreshCategoryList();
           setnewCategory('');
         } else {
-          console.log("unauthorized.");
+          const data = await response.json();
+          setNotification(data.message);
+          setNotificationStatus(true);
+          setNotificationInfo('Error');
         }
       } catch (error) {
         console.error("Error:", error);

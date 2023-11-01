@@ -3,6 +3,7 @@ from flask_restful import Resource
 from werkzeug.utils import secure_filename
 from flask import jsonify, request, current_app
 from app.config_flask import SECRET_KEY
+import shutil
 import json
 import jwt
 import os
@@ -96,11 +97,11 @@ class EditAsset(Resource):
                             lmd.execute("UPDATE assets set asset = %s, name = %s, description = %s, brand = %s, model = %s, status = %s, location = %s, category = %s, serialnumber = %s where id = %s", (ids, name, description, brand, model, status, location, category, sn, idasset))
                             db.commit()
                             lmd.close()
-                        return {'message': f"Asset with ID {idasset} has been updated."}, 200
+                        return {'message': f"Asset with ID {ids} has been updated."}, 200
                     else:
                         # Aset tidak ditemukan, berikan pesan kesalahan
                         lmd.close()
-                        return {"message": f"Asset with ID {idasset} not found."}, 404
+                        return {"message": f"Asset with ID {ids} not found."}, 404
                 else:
                     return{"message": "you didnt have access to run this command"}
 
@@ -116,6 +117,11 @@ class DeleteAsset(Resource):
         if existing_asset:
             # Aset ditemukan, maka kita dapat menghapusnya
             lmd.execute("DELETE FROM assets WHERE asset = %s", (asset_id,))
+            dirphoto = os.path.join(current_app.config['UPLOAD_FOLDER'], asset_id)
+            try:
+                shutil.rmtree(dirphoto)
+            except OSError as e:
+                print(f"Error: {e}")
             db.commit()
             lmd.close()
             return {'message': "Asset with ID {} has been deleted.".format(asset_id)}, 200

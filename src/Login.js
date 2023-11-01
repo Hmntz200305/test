@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { faLock } from '@fortawesome/free-solid-svg-icons';
+import { faLock, faThumbsUp, faThumbsDown } from '@fortawesome/free-solid-svg-icons';
 import { faEnvelope } from '@fortawesome/free-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useAuth } from './AuthContext';
@@ -7,12 +7,23 @@ import Modal from 'react-modal';
 Modal.setAppElement('#root');
 
 const Login = () => {
-    const { login, setNotification, Notification, setNotificationStatus } = useAuth();
+    const { login, setNotification, Notification, setNotificationStatus, NotificationStatus, NotificationInfo, setNotificationInfo } = useAuth();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [FEmail, setFEmail] = useState("");
     const [FUsername, setFUsername] = useState("");
     const [FPassword, setFPassword] = useState("");
+
+    if (NotificationStatus) {
+      setTimeout(() => {
+        setNotificationStatus(false);
+        setNotification('');
+      }, 8000);
+    } else {
+      setNotificationStatus(false);
+      setNotification('');
+      setNotificationInfo('');
+    }
 
     // Modal
     const [showModalForgot, setShowModalForgot] = useState(false);
@@ -40,7 +51,10 @@ const Login = () => {
             setNotification(data.message);
             setNotificationStatus(true);
           } else {
-            console.log("Login failed. Please check your credentials.");
+            const data = await response.json();
+            setNotification(data.message);
+            setNotificationStatus(true);
+            setNotificationInfo('Error');
           }
         } catch (error) {
           console.error("Error:", error);
@@ -72,7 +86,23 @@ const Login = () => {
       };
 
     return (
-        <div className='bg-blue-500'>
+        <div className='bg-[#efefef]'>
+          {NotificationStatus ? (
+              <div className={`notification ${NotificationStatus ? 'slide-in' : 'slide-out'}`}>
+                <div class="flex items-center lg:w-[300px] md:w-[250px] sm:w-[200px] p-4 opacity-90 rounded-lg shadow bg-gray-900">
+                  {NotificationInfo == 'Error' ? (
+                    <div class="flex bg-red-500 items-center justify-center flex-shrink-0 w-8 h-8 text-white rounded-lg">
+                      <FontAwesomeIcon icon={faThumbsDown} />
+                    </div>
+                  ) : (
+                    <div class="flex bg-green-500 items-center justify-center flex-shrink-0 w-8 h-8 text-white rounded-lg">
+                      <FontAwesomeIcon icon={faThumbsUp} />
+                    </div>
+                  )}
+                  <div class="ml-3 text-left text-sm font-normal break-all text-white">{Notification}</div>
+                </div>
+              </div>
+            ) : null }
             <div className=" flex justify-center items-center min-h-screen p-3">
                 <div className="bg-white w-full max-w-md p-8 rounded-lg shadow-lg">
                     <h1 className="text-2xl font-semibold text-center mb-12">LOGIN</h1>

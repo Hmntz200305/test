@@ -5,7 +5,7 @@ import 'react-data-table-component-extensions/dist/index.css';
 import { useAuth } from '../AuthContext';
 
 const Lease = () => {
-    const { token, DataListAssetExcept, refreshAssetDataExcept, LocationOptions, refreshLocationList, refreshAdminList, AdminList, username } = useAuth();
+    const { token, DataListAssetExcept, refreshAssetDataExcept, LocationOptions, refreshLocationList, refreshAdminList, AdminList, username, setNotification, setNotificationStatus } = useAuth();
     const [showTable, setShowTable] = useState(true);
     const [showFormulir, setShowFormulir] = useState(false);
     const [Name, setName] = useState('');
@@ -70,6 +70,9 @@ const Lease = () => {
           });
   
           if (response.status === 200) {
+            const data = await response.json();
+            setNotification(data.message);
+            setNotificationStatus(true);
             showTableHandler();
             refreshAssetDataExcept();
             setSelectedAssets([]);
@@ -79,7 +82,8 @@ const Lease = () => {
             setLocation('');
             setNote('');
           } else {
-            console.log("unauthorized.");
+            setNotification('Diharapkan mengisi semua Form');
+            setNotificationStatus(true);
           }
         } catch (error) {
           console.error("Error:", error);

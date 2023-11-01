@@ -1,4 +1,4 @@
-from flask import Flask, request
+from flask import Flask, request, abort
 from app.config_flask import SECRET_KEY, UPLOAD_FOLDER
 from app.config_api import configure_cors, configure_api
 from app.config_mail import configure_mail
@@ -11,24 +11,15 @@ api = configure_api(app)
 app.config['SECRET_KEY'] = SECRET_KEY
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-# # Definisikan daftar origin yang diizinkan
-# allowed_origins = ["http://sipanda.online:8080", "http://sipanda.online:5000"]  # Gantilah dengan daftar origin yang diizinkan
+whitelisted_ips = ["http://sipanda.online:8080/"]
+@app.before_request
+def check_whitelist():
+    client_ip = request.referrer
+    if client_ip not in whitelisted_ips:
+        return abort(403)
+    
 
-# def is_allowed_origin():
-#     origin = request.headers.get("Origin")
-#     if origin:
-#         return origin in allowed_origins
-#     origin = request.headers.get("Host")
-#     return origin in allowed_origins
-
-# @app.before_request
-# def check_origin():
-#     if not is_allowed_origin():
-#         return "unAuthorized", 403
-
-
-
-api.add_resource(Test, '/Test')
+api.add_resource(UploadCsv, '/Test')
 api.add_resource(Login, '/api/login')
 api.add_resource(Authentication, '/api/authentication')
 api.add_resource(AdminList, '/api/adminlist')

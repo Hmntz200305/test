@@ -9,7 +9,7 @@ import Modal from 'react-modal';
 Modal.setAppElement('#root');
 
 const Return = () => {
-    const { token, Role, refreshDataLoan, DataLoan } = useAuth();
+    const { token, Role, refreshDataLoan, DataLoan, setNotification, setNotificationStatus } = useAuth();
     const [dataWithRemainingTime, setDataWithRemainingTime] = useState([]);
     const [selectedLoanID, setselectedLoanID] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
@@ -71,11 +71,14 @@ const Return = () => {
           });
       
           if (response.status === 200) {
-            // Berhasil mengembalikan, sekarang kita perbarui data peminjaman
+            const data = await response.json();
+            setNotification(data.message);
+            setNotificationStatus(true);
             await refreshDataLoan();
             setIsLoading(false); // Atur status loading menjadi false
           } else {
-            console.log("unauthorized.");
+            setNotification('Failed return');
+            setNotificationStatus(true);
             setIsLoading(false); // Atur status loading menjadi false
           }
         } catch (error) {

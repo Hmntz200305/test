@@ -20,10 +20,12 @@ import Notfound from './pages/Notfound';
 import MyReport from './pages/MyReport';
 import Test from './pages/Test';
 import { AuthProvider, useAuth } from './AuthContext';
+import { Bounce, Slide, ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 
 function Home() {
-  const { loggedIn, logout, username, Role, Roles, email, Notification, setNotification, setNotificationStatus, NotificationStatus } = useAuth();
+  const { loggedIn, logout, username, Role, Roles, email, Notification, setNotification, setNotificationStatus, NotificationStatus, NotificationInfo, setNotificationInfo } = useAuth();
 
   // Declare Variable
   const [activeMenu, setActiveMenu] = useState(null);
@@ -41,6 +43,20 @@ function Home() {
     setIsSidebarOpen(!isSidebarOpen);
   };
 
+
+  const notify = () => {
+    toast.success("Wow so easy !", {
+      icon: "❤️"
+    })
+    toast.error("Wow so easy !", {
+      icon: "😁"
+    })
+    toast.warning("Wow so easy !", {
+      icon: "😎"
+    })
+  }
+
+  // Notifikasi
   if (NotificationStatus) {
     setTimeout(() => {
       setNotificationStatus(false);
@@ -49,18 +65,7 @@ function Home() {
   } else {
     setNotificationStatus(false);
     setNotification('');
-  }
-
-  // useEffect(() => {
-  //   if (Notification) {
-  //     setTimeout(() => {
-  //       setNotification('');
-  //     }, 4000);
-  //   } else {
-  //     setNotification('');
-  //   }
-  // }, [Notification]); // Tambahkan Notification ke dalam dependencies
-  
+  }  
 
   // popover profile
   const [showPopoverProfile, setShowPopoverProfile] = useState(false);
@@ -172,20 +177,39 @@ function Home() {
                 </div>
               </div>
             )}
-            { /* Notif */}
-              {NotificationStatus ? (
-                  <div className='flex flex-col max-h-screen absolute top-16 right-1 gap-1'>
-                    <div class="flex items-center lg:w-[300px] md:w-[250px] sm:w-[200px] p-4 opacity-90 rounded-lg shadow bg-gray-900">
-                      <div class="flex bg-green-500 items-center justify-center flex-shrink-0 w-8 h-8 text-white rounded-lg">
-                        <FontAwesomeIcon icon={faThumbsUp} />
-                      </div>
-                      <div class="ml-3 text-left text-sm font-normal break-all">{Notification}</div>
-                    </div>
+
+          <div>
+            <button onClick={notify}>Notify !</button>
+            <ToastContainer
+              position="top-right"
+              autoClose={3000}
+              hideProgressBar={false}
+              newestOnTop={false}
+              closeOnClick
+              rtl={false}
+              pauseOnFocusLoss
+              draggable
+              pauseOnHover
+              theme="dark"
+              transition={Bounce}
+            />
+          </div>
+          
+            
+            {NotificationStatus ? (
+              <div className={`notification flex flex-col max-h-screen absolute top-16 right-1 gap-1 ${NotificationStatus ? 'slide-in' : 'slide-out'}`}>
+                <div class="flex items-center lg:w-[300px] md:w-[250px] sm:w-[200px] p-4 opacity-90 rounded-lg shadow bg-gray-900">
+                  <div class="flex bg-green-500 items-center justify-center flex-shrink-0 w-8 h-8 text-white rounded-lg">
+                    <FontAwesomeIcon icon={faThumbsUp} />
                   </div>
-              ) : null }
+                  <div class="ml-3 text-left text-sm font-normal break-all">{Notification}</div>
+                </div>
+              </div>
+            ) : null }
           </div>
         </div>
       ) : null }
+
       {/* CONTAINER */}
       {loggedIn ? (
       <div className='flex'>
@@ -360,7 +384,7 @@ function Home() {
             <Route
               path="/login"
               element={loggedIn ? <Navigate to="/" /> : <Login />}
-            />
+            />  
             <Route path="/myreport" element={<MyReport />} />
             <Route path="*" element={<Notfound />} />
             <Route path="/test" element={<Test />} />

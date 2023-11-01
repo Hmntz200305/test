@@ -97,6 +97,8 @@ class AddStatus(Resource):
                     newStatus = data.get('newStatus')
                     lmd.execute("SELECT status FROM status WHERE id = %s", (newStatus,))
                     existing_asset = lmd.fetchone()
+                    if not newStatus:
+                        return {'message': 'The form must be filled in'}, 401
                     if existing_asset:
                         return {"message": "Status exist"}
                     else:
@@ -127,6 +129,8 @@ class AddLocation(Resource):
                 if fetch == 2:
                     data = request.get_json()
                     newLocation = data.get('newLocation')
+                    if not newLocation:
+                        return {'message': 'The form must be filled in'}, 401
                     lmd.execute("SELECT lokasi FROM location WHERE id = %s", (newLocation,))
                     existing_asset = lmd.fetchone()
                     if existing_asset:
@@ -158,6 +162,8 @@ class AddCategory(Resource):
                 if fetch == 2:
                     data = request.get_json()
                     newCategory = data.get('newCategory')
+                    if not newCategory:
+                        return {'message': 'The form must be filled in'}, 401
                     lmd.execute("SELECT kategori FROM category WHERE id = %s", (newCategory,))
                     existing_asset = lmd.fetchone()
                     if existing_asset:

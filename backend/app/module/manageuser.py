@@ -113,14 +113,17 @@ class DeleteUser(Resource):
         lmd.execute("SELECT email FROM users WHERE id = %s", (no,))
         existing_user = lmd.fetchone()
         
+        lmd.execute('SELECT username from users where id = %s', (no,))
+        username = lmd.fetchone()[0]
+        
         if existing_user:
             lmd.execute("DELETE FROM users WHERE id = %s", (no,))
             db.commit()
             lmd.close()
-            return {'message': "User with ID {} has been deleted.".format(no)}, 200
+            return {'message': f"User {username} has been deleted."}, 200
         else:
             lmd.close()
-            return {'message': "User with ID {} not found.".format(no)}, 404
+            return {'message': f"User {username} not found."}, 404
         
 class EditUser(Resource):
     def put(self, no):
@@ -179,10 +182,10 @@ class EditUser(Resource):
                             db.commit()
                             lmd.close()
 
-                        return {'message': f"User with ID {no} has been updated."}, 200
+                        return {'message': f"User {data.get('username')} has been updated."}, 200
                     else:
                         lmd.close()
-                        return {"message": f"User with ID {no} not found."}, 404
+                        return {"message": f"User {data.get('username')} not found."}, 404
                 else:
                     return{"message": "you didnt have access to run this command"}
                 

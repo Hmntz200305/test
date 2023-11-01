@@ -9,7 +9,7 @@ import { useAuth } from '../AuthContext';
 
 const ManageUser = () => {
     // Tambahkan state untuk mengatur tampilan tabel dan formulir
-    const { token, Role, refreshManageUser, ManageUserData } = useAuth();
+    const { token, Role, refreshManageUser, ManageUserData, setNotification, setNotificationStatus } = useAuth();
     const [showTable, setShowTable] = useState(false);
     const [showRegistrationForm, setShowRegistrationForm] = useState(false);
     const [showEdit, setShowEdit] = useState(false);
@@ -43,7 +43,9 @@ const ManageUser = () => {
           });
     
           if (response.status === 200) {
-            console.log("Registration Success")
+            const data = await response.json();
+            setNotification(data.message);
+            setNotificationStatus(true);
             setUsername('');
             refreshManageUser();
             setEmail('');
@@ -71,48 +73,55 @@ const ManageUser = () => {
             userrole: selectedUser.role,
             password: password
         };
-    
-        fetch(`http://sipanda.online:5000/api/edit-user/${selectedUser.no}`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-                Authorization: token,
-            },
-            body: JSON.stringify(editedUser),
-        })
-        .then((response) => {
+        try {
+            const response = await fetch(`http://sipanda.online:5000/api/edit-user/${selectedUser.no}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: token,
+                },
+                body: JSON.stringify(editedUser),
+            })
+
             if (response.status === 200) {
+                const data = await response.json();
+                setNotification(data.message);
+                setNotificationStatus(true);
                 setShowEdit(false);
                 refreshManageUser();
             } else {
-                console.error('Failed to edit asset');
+                setNotification('Failed to edit user');
+                setNotificationStatus(true);
             }
-        })
-        .catch((error) => {
+        } catch (error) {
             console.error('Error:', error);
-        });
+        }
     };
-    
 
-      const deleteUser = (no) => {
-        fetch(`http://sipanda.online:5000/api/delete-user/${no}`, {
-          method: 'DELETE',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        })
-          .then((response) => {
-            if (response.status === 200) {
-                setShowDelete(false);
-                refreshManageUser();
-            } else {
-              console.error('Failed to delete asset');
-            }
-          })
-          .catch((error) => {
-            console.error('Error:', error);
+    const deleteUser = async (no) => {
+        try {
+          const response = await fetch(`http://sipanda.online:5000/api/delete-user/${no}`, {
+            method: 'DELETE',
+            headers: {
+              'Content-Type': 'application/json',
+            },
           });
+      
+          if (response.status === 200) {
+            const data = await response.json();
+            setNotification(data.message);
+            setNotificationStatus(true);
+            setShowDelete(false);
+            refreshManageUser();
+          } else {
+            setNotification('Failed to delete user');
+            setNotificationStatus(true);
+          }
+        } catch (error) {
+          console.error('Error:', error);
+        }
       };
+      
   
       
   // Fungsi untuk menampilkan tabel dan menyembunyikan formulir

@@ -33,6 +33,9 @@ class Login(Resource):
         email = args['email']
         password = args['password']
 
+        if not email or not password:
+            return {'message': 'The form must be filled in'}, 400
+        
         # Lakukan validasi login
         if validate_login(email, password):
             md5 = hashlib.md5(password.encode())
@@ -44,9 +47,9 @@ class Login(Resource):
             
             lmd.execute("SELECT count(*) from users where email = %s and password = %s", (email, md5password,))
             cek = lmd.fetchone()[0]
-            
-            if verif > 0:
-                if cek > 0:
+
+            if cek > 0:
+                if verif > 0:
                     lmd.execute("SELECT username, email, role from users where email = %s", (email,))
                     fetch = lmd.fetchone()
                     if fetch:
@@ -56,9 +59,9 @@ class Login(Resource):
                     else:
                         return {'message': 'Login failed: Email not found or incorrect password'}, 401
                 else:
-                    return {'message': 'Login failed: Email not found or incorrect password'}, 401
+                    return {'message': 'Please Verification your email first'}, 401
             else:
-                return {'message': 'Please Verification your email first'}, 401
+                return {'message': 'Login failed: Email not found or incorrect password'}, 401
         else:
             return {'message': 'Login failed: Validation failed'}, 401
 
