@@ -1,28 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import DataTable from 'react-data-table-component';
-import DataTableExtensions from 'react-data-table-component-extensions';
 import 'react-data-table-component-extensions/dist/index.css';
-import foto from '../resources/img/aset2.jpg';
-import { faDownload, faFileCsv, faFileExport, faUpload, faFileImport, faPenToSquare, faPrint, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faPenToSquare, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useAuth } from '../AuthContext';
-import { CSVLink } from 'react-csv';
-import { useDropzone } from 'react-dropzone';
-
-// 
-import { MaterialReactTable, createMRTColumnHelper, useMaterialReactTable, } from 'material-react-table';
-import { Box, Button, colors } from '@mui/material';
-import FileDownloadIcon from '@mui/icons-material/FileDownload';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { mkConfig, generateCsv, download } from 'export-to-csv';
-import { jsPDF } from 'jspdf';
-import autoTable from 'jspdf-autotable';
-import { DataGrid } from '@mui/x-data-grid';
-import dayjs from 'dayjs';
+import { MaterialReactTable, createMRTColumnHelper, } from 'material-react-table';
 
 
-const ListAsset = () => {
+
+const Chat = () => {
   const { token, Role, DataListAsset, refreshAssetData, refreshStatusList, StatusOptions, LocationOptions, refreshLocationList, refreshCategoryList, CategoryOptions, setNotification, setNotificationInfo, setNotificationStatus } = useAuth();
   const [showEdit, setShowEdit] = useState(false);
   const [showDelete, setShowDelete] = useState(false);
@@ -121,117 +106,277 @@ const ListAsset = () => {
     }
   };
 
-  const [uploadedFile, setUploadedFile] = useState(null);
-  const handleUpload = (acceptedFiles) => {
-    // Mengambil file yang diunggah dan mengatur state uploadedFile
-    const file = acceptedFiles[0];
-    setUploadedFile(file);
+
+  const showEditHandler = (row) => {
+    setSelectedAsset(row);
+    setShowEdit(true);
+    setShowDelete(false);
   };
-  const { getRootProps, getInputProps } = useDropzone({
-    onDrop: handleUpload,
-    multiple: false, // Hanya izinkan unggah satu file
-    accept: '.csv, .xlsx',
-  });
 
+  const hideEditHandler = () => {
+    setSelectedAsset(null);
+    setShowEdit(false);
+  };
 
-  const handleDownload = () => {
-    // Membuat URL sumber file yang akan diunduh
-    const fileURL = 'http://sipanda.online:5000/static/template/MyReport.csv'; // Gantilah dengan URL file yang sesuai
-    
-    // Membuat anchor element
-    const a = document.createElement('a');
-    a.href = fileURL;
-    a.download = 'MyReport.csv'; // Gantilah dengan nama file yang sesuai
-    document.body.appendChild(a);
-    
-    // Mengklik tombol secara otomatis untuk memulai unduhan
-    a.click();
-    
-    // Menghapus anchor element dari dokumen
-    document.body.removeChild(a);
-};
+  const showDeleteHandler = (id) => {
+    setSelectedAssetId(id);
+    setShowEdit(false);
+    setShowDelete(true);
+  };
 
+  const hideDeleteHandler = () => {
+    setShowDelete(false);
+  };
 
-  // NEW TABLE
-const columnHelper = createMRTColumnHelper();
-const columnsNew = [
-  columnHelper.accessor('no', {
-    header: 'No',
-    size: 40,
-  }),
-  columnHelper.accessor('id', {
-    header: 'ID Asset',
-    size: 120,
-  }),
-  columnHelper.accessor('name', {
-    header: 'Name',
-    size: 120,
-  }),
-  columnHelper.accessor('description', {
-    header: 'Description',
-    size: 300,
-  }),
-  columnHelper.accessor('brand', {
-    header: 'Brand',
-  }),
-  columnHelper.accessor('model', {
-    header: 'Model',
-    size: 220,
-  }),
-  columnHelper.accessor('status', {
-    header: 'Status',
-    size: 220,
-  }),
-  columnHelper.accessor('location', {
-    header: 'Location',
-    size: 220,
-  }),
-  columnHelper.accessor('category', {
-    header: 'Category',
-    size: 220,
-  }),
-  columnHelper.accessor('sn', {
-    header: 'SN',
-    size: 220,
-  }),
-  columnHelper.accessor('image_path', {
-    header: 'Photo',
-    size: 200,
-    enableSorting: false,
-    enableColumnFilter: false,
-    Cell: ({ row }) => (
-      <img src={row.original.image_path} alt="Asset" style={{ width: '70px', height: 'auto' }} />
-    ),
-  }),  
-  columnHelper.accessor('action', {
-    header: 'Action',
-    size: 120,
-    enableSorting: false,
-    enableColumnFilter: false,
-    Cell: ({row}) => (
-      <div className='text-white'>
-        <button className='bg-green-500 p-2 rounded-lg hover:bg-green-700 m-0.5'>
-          <FontAwesomeIcon icon={faPenToSquare} />
-        </button>
-        <button className='bg-red-500 p-2 rounded-lg hover:bg-red-700 m-0.5'>
-          <FontAwesomeIcon icon={faTrash} />
-        </button>
-      </div>
+  // TABLE 2
+  const columnHelper = createMRTColumnHelper();
+  const columnsNew = [
+    columnHelper.accessor('no', {
+      header: 'No',
+      size: 40,
+    }),
+    columnHelper.accessor('id', {
+      header: 'ID Asset',
+      size: 120,
+    }),
+    columnHelper.accessor('name', {
+      header: 'Name',
+      size: 120,
+    }),
+    columnHelper.accessor('description', {
+      header: 'Description',
+      size: 300,
+    }),
+    columnHelper.accessor('brand', {
+      header: 'Brand',
+      size: 220,
+    }),
+    columnHelper.accessor('model', {
+      header: 'Model',
+      size: 220,
+    }),
+    columnHelper.accessor('status', {
+      header: 'Status',
+      size: 220,
+    }),
+    columnHelper.accessor('location', {
+      header: 'Location',
+      size: 220,
+    }),
+    columnHelper.accessor('category', {
+      header: 'Category',
+      size: 220,
+    }),
+    columnHelper.accessor('sn', {
+      header: 'SN',
+      size: 220,
+    }),
+    columnHelper.accessor('image_path', {
+      header: 'Photo',
+      size: 200,
+      enableSorting: false,
+      enableColumnFilter: false,
+      Cell: ({ row }) => (
+        <img src={row.original.image_path} alt="Asset" style={{ width: '70px', height: 'auto' }} />
       ),
     }),
-];
+    columnHelper.accessor('action', {
+      header: 'Action',
+      omit: Role !== 2,
+      size: 120,
+      enableSorting: false,
+      enableColumnFilter: false,
+      Cell: ({row}) => (
+        Role === 2 ? (
+          <div className='text-white'>
+            <button className='bg-green-500 p-2 rounded-lg hover:bg-green-700 m-0.5' onClick={() => showEditHandler(row.original)}>
+              <FontAwesomeIcon icon={faPenToSquare} />
+            </button>
+            <button className='bg-red-500 p-2 rounded-lg hover:bg-red-700 m-0.5' onClick={() => showDeleteHandler(row.original.id)}>
+              <FontAwesomeIcon icon={faTrash} />
+            </button>
+          </div>
+        ) : null
+        ),
+      }),
+  ];
 
-
-// END NEW TABLE
+// END TABLE 2
 
   return (
     <>
       <div className='p-2'>
         <div className='bg-black mb-5 rounded-2xl p-4 shadow'>
-          <h2 className='text-white'>Selamat datang di List of Asset page :)</h2>
+          <h2 className='text-white'>Selamat datang di Chat page :)</h2>
         </div>
       </div>
+      {showEdit && (
+        <div className='p-2'>
+            <div className='p-2 rounded-xl bg-white shadow-xl'> 
+                <div className='form-group'>
+                    <label className='label-text'>Asset ID</label>
+                    <input 
+                    className='form-input' 
+                    placeholder='Masukan Asset ID' 
+                    value={selectedAsset?.id}
+                    onChange={(e) => setSelectedAsset({ ...selectedAsset, id: e.target.value })}
+                    />
+                </div>
+                <div className='form-group'>
+                    <label className='label-text'>Asset Name</label>
+                    <input 
+                    className='form-input' 
+                    placeholder='Masukan Asset Name' 
+                    value={selectedAsset?.name}
+                    onChange={(e) => setSelectedAsset({ ...selectedAsset, name: e.target.value })}
+                    />
+                </div>
+                <div className='form-group'>
+                    <label className='label-text'>Description</label>
+                    <input 
+                    className='form-input' 
+                    placeholder='Masukan Asset Deskripsi' 
+                    value={selectedAsset?.description}
+                    onChange={(e) => setSelectedAsset({ ...selectedAsset, description: e.target.value })}
+                    />
+                </div>
+                <div className='form-group'>
+                    <label className='label-text'>Brand</label>
+                    <input 
+                    className='form-input' 
+                    placeholder='Masukan Asset Brand' 
+                    value={selectedAsset?.brand}
+                    onChange={(e) => setSelectedAsset({ ...selectedAsset, brand: e.target.value })}
+                    />
+                </div>
+                <div className='form-group'>
+                    <label className='label-text'>Model</label>
+                    <input 
+                    className='form-input' 
+                    placeholder='Masukan Model Asset' 
+                    value={selectedAsset?.model}
+                    onChange={(e) => setSelectedAsset({ ...selectedAsset, model: e.target.value })}
+                    />
+                </div>
+                <div class="form-group">
+                    <label class="label-text">Status</label>
+                    <div class="kategori-container">
+                        <div class="dropdown-container">
+                            <select 
+                            class="category-dropdown" 
+                            id="statusDropdown" 
+                            name="status" 
+                            value={selectedAsset?.status}
+                            onChange={(e) => setSelectedAsset({ ...selectedAsset, status: e.target.value })}
+                            required
+                            >
+                                <option value="" disabled selected>Pilih Status</option>
+                                {StatusOptions.map((status) => (
+                                    <option key={status.id} value={status.status}>
+                                      {status.status}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="label-text">Location</label>
+                    <div class="kategori-container">
+                        <div class="dropdown-container">
+                            <select 
+                            class="category-dropdown" 
+                            id="statusDropdown" 
+                            name="status"
+                            value={selectedAsset?.location}
+                            onChange={(e) => setSelectedAsset({ ...selectedAsset, location: e.target.value })} 
+                            required
+                            >
+                                <option value="" disabled selected>Pilih Lokasi</option>
+                                {LocationOptions.map((location) => (
+                                    <option key={location.id} value={location.location}>
+                                      {location.location}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="label-text">kategori</label>
+                    <div class="kategori-container">
+                        <div class="dropdown-container">
+                            <select 
+                            class="category-dropdown" 
+                            id="statusDropdown" 
+                            name="status" 
+                            value={selectedAsset?.category}
+                            onChange={(e) => setSelectedAsset({ ...selectedAsset, category: e.target.value })} 
+                            required
+                            >
+                                <option value="" disabled selected>Pilih Kategori</option>
+                                {CategoryOptions.map((category) => (
+                                    <option key={category.id} value={category.category}>
+                                      {category.category}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div className='form-group'>
+                    <label className='label-text'>Serial Number</label>
+                    <input 
+                    className='form-input' 
+                    placeholder='Masukan Serial Number' 
+                    value={selectedAsset?.sn}
+                    onChange={(e) => setSelectedAsset({ ...selectedAsset, sn: e.target.value })}
+                    />
+                </div>
+                <div className='form-group'>
+                    <label for="photo_asset" class="label-text">Photo</label>
+                    <input type="file" class="form-input" id="photo_asset" name="photo" accept="image/*" onChange={handleImageChange}/>
+                </div>
+                <div className='flex justify-end gap-1'>
+                    <button type="button" className='main-btn' id="edit-button" onClick={hideEditHandler}>Cancel</button>
+                    <button
+                      type="button"
+                      className="main-btn"
+                      id="edit-button"
+                      onClick={() => editAsset(token)}
+                    >
+                        Edit Asset
+                    </button>
 
+                </div>
+            </div>
+        </div>
+        )}
+
+      {showDelete && (
+        <div className='p-2'>
+          <div className="flex flex-col items-center justify-center bg-white p-2 shadow-xl rounded-2xl">
+            <div className='flex flex-col text-center mb-2'>
+              <h1 className="text-2xl font-semibold">Select Action</h1>
+              <p>Apakah anda yakin ingin menghapus Asset ini?</p>
+            </div>
+
+            <div className="flex space-x-4 mt-5">
+              <button className="main-btn hover-bg-slate-600 text-white font-semibold py-2 px-4 rounded" onClick={hideDeleteHandler}>
+                Cancel
+              </button>
+              <button className="main-btn hover-bg-slate-600 text-white font-semibold py-2 px-4 rounded" onClick={() => deleteAsset(selectedAssetId)}>
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+
+      
+      <div className='p-2'>
+        
 
         <div className='mt-10'>
           <MaterialReactTable
@@ -245,8 +390,9 @@ const columnsNew = [
           />
         </div>
         
+      </div>
     </>
   );
 };
 
-export default ListAsset;
+export default Chat;
