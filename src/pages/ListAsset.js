@@ -1,26 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import DataTable from 'react-data-table-component';
-import DataTableExtensions from 'react-data-table-component-extensions';
 import 'react-data-table-component-extensions/dist/index.css';
-import foto from '../resources/img/aset2.jpg';
 import { faDownload, faFileCsv, faFileExport, faUpload, faFileImport, faPenToSquare, faPrint, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useAuth } from '../AuthContext';
-import { CSVLink } from 'react-csv';
 import { useDropzone } from 'react-dropzone';
-
 // 
 import { MaterialReactTable, createMRTColumnHelper, useMaterialReactTable, } from 'material-react-table';
 import { Box, Button, colors } from '@mui/material';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { mkConfig, generateCsv, download } from 'export-to-csv';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { DataGrid } from '@mui/x-data-grid';
-import dayjs from 'dayjs';
-
+import Modal from 'react-modal';
+Modal.setAppElement('#root');
 
 const ListAsset = () => {
   const { token, Role, DataListAsset, refreshAssetData, refreshStatusList, StatusOptions, LocationOptions, refreshLocationList, refreshCategoryList, CategoryOptions, setNotification, setNotificationInfo, setNotificationStatus } = useAuth();
@@ -29,6 +22,50 @@ const ListAsset = () => {
   const [selectedAssetId, setSelectedAssetId] = useState(null);
   const [selectedAsset, setSelectedAsset] = useState(null);
   const [fileInput, setFileInput] = useState(null);
+  const [selectedFile, setSelectedFile] = useState(null);
+
+  const handleFileChange = (event) => {
+    setSelectedFile(event.target.files[0]);
+  };
+  
+  useEffect(() => {
+    refreshAssetData();
+    refreshStatusList();
+    refreshLocationList();
+    refreshCategoryList();
+    // eslint-disable-next-line
+  }, []);
+
+  const handleFileUpload = async () => {
+    if (!selectedFile) {
+      setNotification('Pilih CSV');
+      setNotificationStatus(true);
+      setNotificationInfo('Error');
+      return;
+    }
+  
+    const formData = new FormData();
+    formData.append('csvFile', selectedFile);
+  
+    try {
+      const response = await fetch('http://sipanda.online:5000/api/importcsv', {
+        method: 'POST',
+        body: formData,
+      });
+  
+      if (response.ok) {
+        const data = await response.json();
+        refreshAssetData();
+        setNotification(data.message);
+        setNotificationStatus(true);
+      } else {
+        console.error('Error:', response.status, response.statusText);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
+  
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -43,14 +80,6 @@ const ListAsset = () => {
       }
     }
   };  
-
-  useEffect(() => {
-    refreshAssetData();
-    refreshStatusList();
-    refreshLocationList();
-    refreshCategoryList();
-    // eslint-disable-next-line
-  }, []);
 
   const editAsset = async (token) => {
     const formData = new FormData();
@@ -167,8 +196,8 @@ const ListAsset = () => {
     setShowEdit(false);
   };
 
-  const showDeleteHandler = (id) => {
-    setSelectedAssetId(id);
+  const showDeleteHandler = (no) => {
+    setSelectedAssetId(no);
     setShowEdit(false);
     setShowDelete(true);
   };
@@ -230,7 +259,7 @@ const columnsNew = [
     ),
   }),
   columnHelper.accessor('action', {
-    header: 'Action',
+    header: Role === 2 ? 'Action' : '',
     omit: Role !== 2,
     size: 120,
     enableSorting: false,
@@ -241,7 +270,7 @@ const columnsNew = [
           <button className='bg-green-500 p-2 rounded-lg hover:bg-green-700 m-0.5' onClick={() => showEditHandler(row.original)}>
             <FontAwesomeIcon icon={faPenToSquare} />
           </button>
-          <button className='bg-red-500 p-2 rounded-lg hover:bg-red-700 m-0.5' onClick={() => showDeleteHandler(row.original.id)}>
+          <button className='bg-red-500 p-2 rounded-lg hover:bg-red-700 m-0.5' onClick={() => showDeleteHandler(row.original.no)}>
             <FontAwesomeIcon icon={faTrash} />
           </button>
         </div>
@@ -374,7 +403,7 @@ const handleExportRowsCsv = (rows) => {
             <button className='bg-green-500 p-2 rounded-lg hover:bg-green-700 m-0.5' onClick={() => showEditHandler(row)}>
               <FontAwesomeIcon icon={faPenToSquare} />
             </button>
-            <button className='bg-red-500 p-2 rounded-lg hover:bg-red-700 m-0.5' onClick={() => showDeleteHandler(row.id)}>
+            <button className='bg-red-500 p-2 rounded-lg hover:bg-red-700 m-0.5' onClick={() => showDeleteHandler(row.no)}>
               <FontAwesomeIcon icon={faTrash} />
             </button>
           </div>
@@ -383,42 +412,6 @@ const handleExportRowsCsv = (rows) => {
     },
   ];
 
-  const fakedata1 = [
-    { no: '2', id: 'ASSET0002', name: 'Monitor', description: 'Ultra HD', brand: 'Dell', model: 'U2719D', status: 'Available', location: 'LMD', category: 'monitor', sn: '453434343', photo: '', },
-    { no: '3', id: 'ASSET0003', name: 'Keyboard', description: 'Mechanical', brand: 'Logitech', model: 'G Pro X', status: 'Available', location: 'LMD', category: 'keyboard', sn: '876543210', photo: '', },
-    { no: '4', id: 'ASSET0004', name: 'Mouse', description: 'Wireless', brand: 'Logitech', model: 'MX Master 3', status: 'Available', location: 'LMD', category: 'mouse', sn: '112233445', photo: '', },
-    { no: '5', id: 'ASSET0005', name: 'Desk', description: 'Wooden', brand: 'IKEA', model: 'Linnmon', status: 'Available', location: 'LMD', category: 'furniture', sn: '998877665', photo: '' },
-    { no: '6', id: 'ASSET0006', name: 'Printer', description: 'Color LaserJet', brand: 'HP', model: 'LaserJet Pro M454dw', status: 'Available', location: 'LMD', category: 'printer', sn: '998877665', photo: '', },
-    { no: '7', id: 'ASSET0007', name: 'Chair', description: 'Ergonomic', brand: 'Steelcase', model: 'Gesture', status: 'Available', location: 'LMD', category: 'furniture', sn: '334455667', photo: '',  },
-    { no: '8', id: 'ASSET0008', name: 'Projector', description: 'HD', brand: 'Epson', model: 'PowerLite 1781W', status: 'Available', location: 'LMD', category: 'projector', sn: '009988776', photo: '',  },
-    { no: '9', id: 'ASSET0009', name: 'Scanner', description: 'Flatbed', brand: 'Canon', model: 'CanoScan LiDE 300', status: 'Available', location: 'LMD', category: 'scanner', sn: '667788990', photo: '',  },
-    { no: '10', id: 'ASSET0010', name: 'Headphones', description: 'Over-Ear', brand: 'Sony', model: 'WH-1000XM4', status: 'Available', location: 'LMD', category: 'headphones', sn: '554433221', photo: '', },
-  ]
-
-  const filteredData = fakedata1.map(item => {
-    return {
-      no: item.no,
-      id: item.id,
-      name: item.name,
-      description: item.description,
-      brand: item.brand,
-      model: item.model,
-      status: item.status,
-      location: item.location,
-      category: item.category,
-      sn: item.sn,
-      photo: item.photo,
-      action: item.action
-    }
-  })
-
-  const columnsWithout = columns.filter(column => column.selector !== 'photo' && column.selector !== 'action');
-  const headersWithout = columnsWithout.map(column => ({ label: column.name, key: column.selector }));
-
-  const customElement = (
-    <button onClick={() => alert('Tombol Kustom Ditekan')}>Tombol Kustom</button>
-  );
-  
   return (
     <>
       <div className='p-2'>
@@ -441,9 +434,10 @@ const handleExportRowsCsv = (rows) => {
                         <p class="mb-2 text-sm text-gray-500 dark:text-gray-400"><span class="font-semibold">Click to upload</span> or drag and drop</p>
                         <p class="text-xs text-gray-500 dark:text-gray-400">Only CSV (MAX. 5MB)</p>
                     </div>
-                    <input id="dropzone-file" type="file" class="hidden" />
+                    <input className='' id="dropzone-file" type="file" accept=".csv, .xls" onChange={handleFileChange} />
                 </label>
             </div>
+            <button className='main-btn' onClick={handleFileUpload}>Upload</button>
 
           </div>
         )}
@@ -614,11 +608,10 @@ const handleExportRowsCsv = (rows) => {
 
       
       <div className='p-2'>
-        <div>
+        {/* <div>
         <DataTableExtensions
           columns={columns}
           data={DataListAsset}
-          // fileName='hehe'
           filter
           print={true}
           export={true}
@@ -634,7 +627,7 @@ const handleExportRowsCsv = (rows) => {
             highlightOnHover
           />
         </DataTableExtensions>
-        </div>
+        </div> */}
 
         <div className='mt-10'>
           <MaterialReactTable

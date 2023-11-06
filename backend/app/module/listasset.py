@@ -111,24 +111,24 @@ class DeleteAsset(Resource):
         db, lmd = get_db_connection()
         
         # Cek apakah aset dengan ID yang diberikan ada dalam database
-        lmd.execute("SELECT asset FROM assets WHERE asset = %s", (asset_id,))
-        existing_asset = lmd.fetchone()
+        lmd.execute("SELECT asset FROM assets WHERE id = %s", (asset_id,))
+        existing_asset = lmd.fetchone()[0]
         
         if existing_asset:
             # Aset ditemukan, maka kita dapat menghapusnya
-            lmd.execute("DELETE FROM assets WHERE asset = %s", (asset_id,))
-            dirphoto = os.path.join(current_app.config['UPLOAD_FOLDER'], asset_id)
+            lmd.execute("DELETE FROM assets WHERE id = %s", (asset_id,))
+            dirphoto = os.path.join(current_app.config['UPLOAD_FOLDER'], existing_asset)
             try:
                 shutil.rmtree(dirphoto)
             except OSError as e:
                 print(f"Error: {e}")
             db.commit()
             lmd.close()
-            return {'message': "Asset with ID {} has been deleted.".format(asset_id)}, 200
+            return {'message': "Asset with ID {} has been deleted.".format(existing_asset)}, 200
         else:
             # Aset tidak ditemukan, berikan pesan kesalahan
             lmd.close()
-            return {'message': "Asset with ID {} not found.".format(asset_id)}, 404
+            return {'message': "Asset with ID {} not found.".format(existing_asset)}, 404
         
 class StatusList(Resource):
     def get(self):

@@ -24,7 +24,7 @@ function CSVUploader() {
     const formData = new FormData();
     formData.append('csvFile', selectedFile);
 
-    fetch('http://sipanda.online:5000/Test', {
+    fetch('http://sipanda.online:5000/api/importcsv', {
       method: 'POST',
       body: formData,
     })
@@ -41,7 +41,7 @@ function CSVUploader() {
 
   return (
     <div>
-      <input type="file" accept=".csv, .xls" onChange={handleFileChange} />
+      <input id="dropzone-file" type="file" accept=".csv, .xls" onChange={handleFileChange} />
       <button onClick={handleFileUpload}>Upload CSV</button>
     </div>
   );

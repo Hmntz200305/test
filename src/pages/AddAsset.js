@@ -21,6 +21,7 @@ const AddAsset = () => {
     const [addAssetCategory, setaddAssetCategory] = useState("");
     const [addAssetSN, setaddAssetSN] = useState("");
     const [fileInput, setFileInput] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
 
 
     const handleImageChange = (e) => {
@@ -45,8 +46,10 @@ const AddAsset = () => {
         // eslint-disable-next-line
       },[]);
 
+
     const handleAddAsset = async (token) => {
       try {
+        setIsLoading(true); // Atur status loading menjadi true
         const formData = new FormData();
 
         formData.append('addAssetID', addAssetID);
@@ -95,6 +98,8 @@ const AddAsset = () => {
         }
       } catch (error) {
         console.error("Error:", error);
+      } finally {
+        setIsLoading(false); // Atur status loading menjadi false
       }
     };
       
@@ -432,7 +437,7 @@ const AddAsset = () => {
                             <input type="file" class="form-input" id="photo_asset" name="photo" accept="image/*" onChange={handleImageChange}/>
                         </div>
                         <div className='flex justify-end gap-1 mb-3 p-2'>
-                            <button type="button" className='main-btn' id="edit-button" onClick={() => handleAddAsset(token)}>Add Asset</button>
+                            <button type="button" className='main-btn' id="edit-button" onClick={() => handleAddAsset(token)} disabled={isLoading}>{isLoading ? 'Adding...' : 'Add Asset'}</button>
                         </div>
                     </form>
                 </div>

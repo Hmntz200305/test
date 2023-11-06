@@ -40,8 +40,7 @@ class MyReport(Resource):
                 myreport_list = []
                 for row, row_data in enumerate(loandata, start=1):
                     idticket, idasset, username, leasedate, returndate, locationasset, emailuser, note, statusticket = row_data
-
-                    print(idticket)
+                    
                     # Asset Information
                     lmd.execute('SELECT * from assets where id = %s', (idasset,))
                     assetinformation = lmd.fetchone()

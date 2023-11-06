@@ -108,7 +108,7 @@ function Home() {
     <Router>
       {/* NAVBAR */}
       {loggedIn ? (
-        <div className='flex fixed text-white items-center w-full justify-between z-10 bg-gray-800 h-[60px] px-7'>
+        <div className='flex fixed text-white items-center w-full justify-between z-50 bg-gray-800 h-[60px] px-7'>
           <div className='flex justify-between items-center'>
             <div id='sidebarToggle' className={`navbar-toggle flex items-center justify-center bg-slate-600 w-[40px] h-[40px] rounded-lg cursor-pointer ease-in-out duration-300 ml-0 ${isSidebarOpen ? '' : 'sidebar-closed'}`} onClick={toggleSidebar}>
               <button className='toggle-box'>
@@ -214,7 +214,7 @@ function Home() {
       {loggedIn ? (
       <div className='flex'>
         {/* SIDEBAR */}
-        <div className={`sidebar text-white fixed z-20 bg-gray-800 w-[296px] h-screen mt-[61px] ${isSidebarOpen ? 'sidebar-opened' : 'sidebar-closed'}`} id='sidebar' style={sidebarStyles}>
+        <div className={`sidebar text-white fixed z-50 bg-gray-800 w-[296px] h-screen mt-[61px] ${isSidebarOpen ? 'sidebar-opened' : 'sidebar-closed'}`} id='sidebar' style={sidebarStyles}>
           <div className='flex mt-5 justify-center mb-5'>
             <div className='flex text-center font-bold uppercase text-2xl mt-4 tracking-wider'>Asset<br />Management</div>
           </div>

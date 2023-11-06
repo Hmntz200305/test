@@ -1,4 +1,4 @@
-from app.module.Test import UploadCsv
+# from backend.app.module.import import UploadCsv
 from app.module.auth import Login, Authentication, AdminList
 from app.module.listasset import ListAsset, DeleteAsset, StatusList, LocationList, CategoryList, EditAsset, ListAssetExcept
 from app.module.addasset import AddStatus, AddLocation, AddCategory, AddAsset
@@ -9,3 +9,4 @@ from app.module.returns import inLoanAssetList, ReturnAsset
 from app.module.history import HistoryTicket, HistoryLoanData
 from app.module.myreport import MyReport, MyReportDelete
 from app.module.forgotpassword import ForgotPassword, VerifyEmailForgotPw
+from app.module.imports import UploadCsv

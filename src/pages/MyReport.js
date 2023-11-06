@@ -6,7 +6,6 @@ import { faCircleInfo, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faDownload, faFileCsv, faFileExport, faFileImport } from '@fortawesome/free-solid-svg-icons';
 import Modal from 'react-modal';
-import foto from '../resources/img/aset2.jpg';
 import { useAuth } from '../AuthContext';
 Modal.setAppElement('#root');
 
@@ -69,6 +68,8 @@ const MyReport = () => {
         setShowDelete((prev) => !prev);
     };
 
+
+    // 
     const handleDelete = async (token) => {
         try {
           setIsLoading(true);

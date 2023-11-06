@@ -19,7 +19,7 @@ def check_whitelist():
         return abort(403)
     
 
-api.add_resource(UploadCsv, '/Test')
+# api.add_resource(UploadCsv, '/Test')
 api.add_resource(Login, '/api/login')
 api.add_resource(Authentication, '/api/authentication')
 api.add_resource(AdminList, '/api/adminlist')
@@ -52,6 +52,7 @@ api.add_resource(MyReport, '/api/myreport')
 api.add_resource(MyReportDelete, '/api/myreportdelete/<int:selectedMyReportID>')
 api.add_resource(ForgotPassword, '/api/forgotpassword')
 api.add_resource(VerifyEmailForgotPw, '/verifyemailforgotpw/<string:token>')
+api.add_resource(UploadCsv, '/api/importcsv')
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

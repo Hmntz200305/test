@@ -111,6 +111,8 @@ const Lease = () => {
         setShowFormulir((prev) => !prev);
     };
 
+
+
     const columns = [
         {
             name: 'No',
@@ -190,11 +192,11 @@ const Lease = () => {
                     }}
                     />
                 </div>
-                ),
-                allowOverflow: true,
-                button: true,
-                width: '100px',
-                omit: showFormulir,
+            ),
+            allowOverflow: true,
+            button: true,
+            width: '100px',
+            omit: showFormulir,
             },
     ]
 
@@ -212,11 +214,9 @@ const Lease = () => {
                     <DataTableExtensions
                     columns={columns}
                     data={DataListAssetExcept}
-                    fileName='hehe'
                     filter
-                    print
-                    export
-                    exportHeaders
+                    print={false}
+                    export={false}
                     filterPlaceholder='Filter Data'
                     >
                     <DataTable
@@ -311,7 +311,7 @@ const Lease = () => {
                             placeholder="Masukkan Email Anda" 
                             value={Email}
                             onChange={(e) => setEmail(e.target.value)}  
-                            required />
+                            disabled />
                         </div>
                         <div className='form-group'>
                             <label className='label-text'>Note</label>
