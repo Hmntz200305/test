@@ -10,7 +10,7 @@ import { useAuth } from '../AuthContext';
 Modal.setAppElement('#root');
 
 const MyReport = () => {
-     const { token, Role, refreshMyReport, MyReport } = useAuth();
+     const { token, Role, refreshMyReport, MyReport, setNotification, setNotificationStatus } = useAuth();
      const [selectedAssetDetails, setSelectedAssetDetails] = useState([]);
      const [dataWithRemainingTime, setDataWithRemainingTime] = useState([]);
      const [selectedMyReportID, setselectedMyReportID] = useState(null);
@@ -32,7 +32,7 @@ const MyReport = () => {
         };
         // eslint-disable-next-line
     }, [Role]);
-
+    
     useEffect(() => {
         if (MyReport.myreport_list) {
             const currentDate = new Date();
@@ -85,8 +85,11 @@ const MyReport = () => {
           );
     
           if (response.status === 200) {
+            const data = await response.json();
             setShowDelete(false);
             refreshMyReport();
+            setNotification(data.message);
+            setNotificationStatus(true);
             setSelectedAssetDetails(null);
             setselectedMyReportID(null);
           } else {
@@ -106,7 +109,7 @@ const MyReport = () => {
             },
             {
             name: 'Name',
-            selector: (row) => row.name,
+            selector: (row) => row.assetname,
             },
             {
             name: 'Description',

@@ -30,7 +30,6 @@ class MyReport(Resource):
                 
                 lmd.execute('SELECT * from ticket where email = %s', (email,))
                 loandata = lmd.fetchall()
-
                 lmd.execute('SELECT count(*) from loandata where email = %s and status = %s', (email, 0))
                 onloan = lmd.fetchone()[0]
                 
@@ -40,7 +39,7 @@ class MyReport(Resource):
                 myreport_list = []
                 for row, row_data in enumerate(loandata, start=1):
                     idticket, idasset, username, leasedate, returndate, locationasset, emailuser, note, statusticket = row_data
-                    
+
                     # Asset Information
                     lmd.execute('SELECT * from assets where id = %s', (idasset,))
                     assetinformation = lmd.fetchone()
@@ -87,15 +86,16 @@ class MyReport(Resource):
                     # Ticket Checking
                     
                     lmd.execute('SELECT * from loandata where email = %s and deleted = %s AND idticket = %s', (email, 0, idticket))
-                    loandata = lmd.fetchone()
-                    if loandata:
+                    loandatas = lmd.fetchone()
+                    
+                    if loandatas:
                         # Create a dictionary for each ticket and add it to the list
                         loan_data = {
                             'no': row,
-                            'id': loandata[0],
+                            'id': loandatas[0],
                             'idticket': idticket,
                             'idasset': idasset,
-                            'name': loandata[6],
+                            'name': loandatas[6],
                             'leasedate': str(leasedate),
                             'returndate': str(returndate),
                             'email': email,
@@ -116,7 +116,7 @@ class MyReport(Resource):
                             'admin2status': admin2_status,
                         }
                         myreport_list.append(loan_data)
-                    else:
+                    if statusticket == 'Decline':
                         # Create a dictionary for each ticket and add it to the list
                         loan_data = {
                             'no': row,

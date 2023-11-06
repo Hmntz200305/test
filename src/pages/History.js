@@ -29,16 +29,22 @@ const History = () => {
     const [showMain, setShowMain] = useState(true);
     const [showTicket, setShowTicket] = useState(false);
     const [showPeminjaman, setShowPeminjaman] = useState(false);
+    const [clickedTicket, setClickedTicket] = useState(false);
+    const [clickedPeminjaman, setClickedPeminjaman] = useState(false);
   
     const showTicketHandler = () => {
       setShowMain(true);
       setShowTicket((prev) => !prev);
       setShowPeminjaman(false);
+      setClickedTicket(true); // Set clickedTicket to true
+      setClickedPeminjaman(false); // Set clickedPeminjaman to false
     };
     const showPeminjamanHandler = () => {
       setShowMain(true);
       setShowTicket(false);
       setShowPeminjaman((prev) => !prev);
+      setClickedTicket(false); // Set clickedTicket to false
+      setClickedPeminjaman(true); // Set clickedPeminjaman to true
     };
 
     // Modal
@@ -315,124 +321,6 @@ const History = () => {
             },
     ]
 
-    // const Ticket = [
-    //     {
-    //         name: 'No',
-    //         selector: (row) => row.no,
-    //     },
-    //     {
-    //         name: 'ID Ticket',
-    //         selector: (row) => row.idticket,
-    //     },
-    //     {
-    //         name: 'ID Asset',
-    //         selector: (row) => row.asset,
-    //     },
-    //     {
-    //         name: 'Name',
-    //         selector: (row) => row.name,
-    //     },
-    //     {
-    //         name: 'Lease Date',
-    //         selector: (row) => row.leasedate,
-    //     },
-    //     {
-    //         name: 'Return Date',
-    //         selector: (row) => row.returndate,
-    //     },
-    //     {
-    //         name: 'Location',
-    //         selector: (row) => row.location,
-    //     },
-    //     {
-    //         name: 'Email',
-    //         selector: (row) => row.email,
-    //     },
-    //     {
-    //         name: 'Note',
-    //         selector: (row) => row.note,
-    //     },
-    //     {
-    //         name: 'Status',
-    //         selector: (row) => row.status,
-    //     },
-    //     {
-    //         name: 'Admin #1',
-    //         selector: (row) => row.admin1,
-    //     },
-    //     {
-    //         name: 'Admin #2',
-    //         selector: (row) => row.admin2,
-    //     },
-    //     {
-    //         name: 'More Detail',
-    //         cell: (row) => (
-    //           <div className='text-white flex items-center justify-center cursor-pointer'>
-    //             <button
-    //               className='bg-gray-800 p-1 rounded-lg'
-    //               onClick={() => openMoreDetailHandler(row)}
-    //             >
-    //               <FontAwesomeIcon icon={faCircleInfo} size='xl'/>
-    //             </button>
-    //           </div>
-    //         ),
-    //       },          
-    // ]
-
-
-    
-    // const Loan = [
-    //     {
-    //         name: 'No',
-    //         selector: (row) => row.no,
-    //     },
-    //     {
-    //         name: 'ID Ticket',
-    //         selector: (row) => row.idticket,
-    //     },
-    //     {
-    //         name: 'ID Asset',
-    //         selector: (row) => row.asset,
-    //     },
-    //     {
-    //         name: 'Name',
-    //         selector: (row) => row.assetname,
-    //     },
-    //     {
-    //         name: 'Lease Date',
-    //         selector: (row) => row.leasedate,
-    //     },
-    //     {
-    //         name: 'Return Date',
-    //         selector: (row) => row.returndate,
-    //     },
-    //     {
-    //         name: 'Username',
-    //         selector: (row) => row.name,
-    //     },
-    //     {
-    //         name: 'Email',
-    //         selector: (row) => row.email,
-    //     },
-    //     {
-    //         name: 'Status',
-    //         selector: (row) => row.status,
-    //     },
-    //     {
-    //         name: 'More Detail',
-    //         cell: (row) => (
-    //             <div className='text-white flex items-center justify-center cursor-pointer'>
-    //               <button 
-    //                 className='bg-gray-800 p-1 rounded-lg' 
-    //                 onClick={() => openMoreDetailHandler(row)}
-    //               >
-    //                 <FontAwesomeIcon icon={faCircleInfo} size='xl'/>
-    //               </button>
-    //             </div>
-    //         ),
-    //     }
-    // ]
-
     return (
         <>
             <div className='p-2'>
@@ -442,9 +330,9 @@ const History = () => {
                 {showMain && (
                 <div className="flex flex-col items-center justify-center bg-white p-2 rounded-2xl">
                     <h1 className="text-2xl font-semibold mb-6">Select Menu</h1>
-                    <div className="flex space-x-4">
-                        <button className="main-btn hover:bg-slate-600 text-white font-semibold py-2 px-4 rounded w-32" onClick={showTicketHandler}>Log</button>
-                        <button className="main-btn hover:bg-slate-600 text-white font-semibold py-2 px-4 rounded w-32" onClick={showPeminjamanHandler}>Peminjaman</button>
+                    <div className="flex border-b border-gray-200">
+                        <button className={`w-32 py-4 relative transition-transform duration-300 ${clickedTicket ? 'border-b-2 border-gray-800 transform translate-x-32 ' : ''}`} onClick={showTicketHandler}>Log</button>
+                        <button className={`w-32 py-4 relative transition-transform duration-300 ${clickedPeminjaman ? 'border-b-2 border-gray-800 transform translate-x-32' : ''}`} onClick={showPeminjamanHandler}>Peminjaman</button>
                     </div>
                 </div>
                 )}
@@ -545,29 +433,6 @@ const History = () => {
                             )}
                     />
                 </div>
-                {/* <div>
-                    ticket
-                    <DataTableExtensions
-                    columns={Ticket}
-                    data={HistoryTicket}
-                    fileName='hehe'
-                    filter
-                    print
-                    export
-                    exportHeaders
-                    filterPlaceholder='Filter Data'
-                    >
-                    <DataTable
-                        noHeader
-                        defaultSortField='no'
-                        defaultSortAsc={false}
-                        pagination
-                        highlightOnHover
-                    />
-                    </DataTableExtensions>
-                </div> */}
-                
-                
             </div>
             )}
 

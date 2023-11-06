@@ -14,7 +14,7 @@ class DashboardInfo(Resource):
             counts[status.lower()] = count
             counts['total_assets'] += count
 
-        lmd.execute('SELECT count(*) from ticket where status = %s', (3,))
+        lmd.execute('SELECT count(*) from loandata where status = %s', (1,))
         counts['returning'] = lmd.fetchone()[0]
 
         return counts

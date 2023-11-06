@@ -30,8 +30,7 @@ function CSVUploader() {
     })
       .then((response) => response.json())
       .then((data) => {
-        setNotification(data);
-        setNotificationStatus(true);
+        console.log(data.message)
         refreshAssetData();
       })
       .catch((error) => {

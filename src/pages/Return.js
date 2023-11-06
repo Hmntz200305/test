@@ -13,6 +13,7 @@ const Return = () => {
     const [dataWithRemainingTime, setDataWithRemainingTime] = useState([]);
     const [selectedLoanID, setselectedLoanID] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
+    const [selectedAssetDetails, setSelectedAssetDetails] = useState([]);
 
     useEffect(() => {
         const refreshData = async () => {
@@ -91,9 +92,11 @@ const Return = () => {
     // Modal
     const [showModalAsset, setShowModalAsset] = useState(false);
 
-    const showModalAssetHandle = () => {
-      setShowModalAsset(true);
-    };
+    const showMoreDetailHandler = (row) => {
+        setSelectedAssetDetails([row]);
+        setShowModalAsset(true);
+      };
+
     const closeModalAssetHandle = () => {
       setShowModalAsset(false);
     };
@@ -102,45 +105,45 @@ const Return = () => {
     const morecolumn = [
       {
           name: 'ID Asset',
-          selector: (row) => row.id,
+          selector: (row) => row.idasset,
           },
           {
           name: 'Name',
-          selector: (row) => row.name,
+          selector: (row) => row.nameasset,
           },
           {
           name: 'Description',
-          selector: (row) => row.description,
+          selector: (row) => row.assetsdesc,
           },
           {
           name: 'Brand',
-          selector: (row) => row.brand,
+          selector: (row) => row.assetsbrand,
           },
           {
           name: 'Model',
-          selector: (row) => row.model,
+          selector: (row) => row.assetsmodel,
           },
           {
           name: 'Status',
-          selector: (row) => row.status,
+          selector: (row) => row.assetsstatus,
           },
           {
           name: 'Location',
-          selector: (row) => row.location,
+          selector: (row) => row.assetslocation,
           },
           {
           name: 'Category',
-          selector: (row) => row.category,
+          selector: (row) => row.assetscategory,
           },
           {
           name: 'SN',
-          selector: (row) => row.sn,
+          selector: (row) => row.assetssn,
           },
           {
           name: 'Photo',
           cell: (row) => (
               <div>
-                <img src={foto} alt="Asset" className='rounded-lg shadow p-0.5 shadow-black' />
+                <img src={row.assetsphoto} alt="Asset" className='rounded-lg shadow p-0.5 shadow-black' />
               </div>
             ),
           },
@@ -162,16 +165,6 @@ const Return = () => {
             selector: (row) => row.idasset,
             export: true,
         },
-        {
-            name: 'More Detail',
-            cell: (row) => (
-                <div className='text-white flex items-center justify-center cursor-pointer'>
-                  <button className='bg-gray-800 p-1 rounded-lg' onClick={showModalAssetHandle}>
-                    <FontAwesomeIcon icon={faCircleInfo} size='xl'/>
-                  </button>
-                </div>
-              ),
-            },
         {
             name: 'Name',
             selector: (row) => row.nameasset,
@@ -210,6 +203,16 @@ const Return = () => {
                 </div>
             ),
         },
+        {
+            name: 'More Detail',
+            cell: (row) => (
+                <div className='text-white flex items-center justify-center cursor-pointer'>
+                  <button className='bg-gray-800 p-1 rounded-lg' onClick={() => showMoreDetailHandler(row)}>
+                    <FontAwesomeIcon icon={faCircleInfo} size='xl'/>
+                  </button>
+                </div>
+              ),
+            },
     ];
 
     return (
@@ -241,7 +244,7 @@ const Return = () => {
                 <h1>Ini adalah detail lengkap asset</h1>
                 <DataTable
                     columns={morecolumn}
-                    data={moredata}
+                    data={selectedAssetDetails}
                     highlightOnHover
                 />
                 <button onClick={closeModalAssetHandle} className="main-btn mt-4">

@@ -50,7 +50,9 @@ class inLoanAssetList(Resource):
                         returndate_str = returndate.isoformat()
                         lmd.execute('SELECT asset from assets where id = %s', (idasset,))
                         idassets = lmd.fetchone()[0]
-                        data.append({'row': index, 'id': idloandata, 'idasset': idassets, 'nameasset': nameasset, 'leasedate': leasedate_str, 'returndate': returndate_str})
+                        lmd.execute('SELECT * from assets where id = %s', (idasset,))
+                        assets = lmd.fetchone()
+                        data.append({'row': index, 'id': idloandata, 'idasset': idassets, 'nameasset': nameasset, 'leasedate': leasedate_str, 'returndate': returndate_str, 'assetsid': assets[0], 'assets': assets[1], 'assetsname': assets[2], 'assetsdesc': assets[3], 'assetsbrand': assets[4], 'assetsmodel': assets[5], 'assetsstatus': assets[6], 'assetslocation': assets[7], 'assetscategory': assets[8], 'assetssn': assets[9], 'assetsphoto': assets[10]})
                 
                     return {'data': data, 'loancount': loancount}
                 else:
