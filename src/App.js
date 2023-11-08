@@ -61,10 +61,12 @@ function Home() {
     setTimeout(() => {
       setNotificationStatus(false);
       setNotification('');
+      setNotificationInfo('');
     }, 4000);
   } else {
     setNotificationStatus(false);
     setNotification('');
+    setNotificationInfo('');
   }  
 
   // popover profile
@@ -194,15 +196,19 @@ function Home() {
               transition={Bounce}
             />
           </div>
-          
-            
             {NotificationStatus ? (
               <div className={`notification flex flex-col max-h-screen absolute top-16 right-1 gap-1 ${NotificationStatus ? 'slide-in' : 'slide-out'}`}>
                 <div class="flex items-center lg:w-[300px] md:w-[250px] sm:w-[200px] p-4 opacity-90 rounded-lg shadow bg-gray-900">
-                  <div class="flex bg-green-500 items-center justify-center flex-shrink-0 w-8 h-8 text-white rounded-lg">
-                    <FontAwesomeIcon icon={faThumbsUp} />
-                  </div>
-                  <div class="ml-3 text-left text-sm font-normal break-all">{Notification}</div>
+                  {NotificationInfo == 'Error' ? (
+                    <div class="flex bg-red-500 items-center justify-center flex-shrink-0 w-8 h-8 text-white rounded-lg">
+                      <FontAwesomeIcon icon={faThumbsDown} />
+                    </div>
+                  ) : (
+                    <div class="flex bg-green-500 items-center justify-center flex-shrink-0 w-8 h-8 text-white rounded-lg">
+                      <FontAwesomeIcon icon={faThumbsUp} />
+                    </div>
+                  )}
+                  <div class="ml-3 text-left text-sm font-normal break-all text-white">{Notification}</div>
                 </div>
               </div>
             ) : null }

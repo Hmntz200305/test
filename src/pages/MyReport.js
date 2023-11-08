@@ -353,9 +353,9 @@ const MyReport = () => {
                 data={dataWithRemainingTime}
                 fileName='hehe'
                 filter
-                print
-                export
-                exportHeaders
+                print={false}
+                export={false}
+                exportHeaders={false}
                 filterPlaceholder='Filter Data'
             >
             <DataTable

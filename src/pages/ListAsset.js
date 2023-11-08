@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import 'react-data-table-component-extensions/dist/index.css';
-import { faDownload, faFileCsv, faFileExport, faUpload, faFileImport, faPenToSquare, faPrint, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faDownload, faFileCsv, faFileExport, faUpload, faFileImport, faPenToSquare, faPrint, faTrash, faFilePdf } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useAuth } from '../AuthContext';
 import { useDropzone } from 'react-dropzone';
@@ -13,6 +13,7 @@ import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { DataGrid } from '@mui/x-data-grid';
 import Modal from 'react-modal';
+import { Popover, PopoverHandler, PopoverContent, } from "@material-tailwind/react";
 Modal.setAppElement('#root');
 
 const ListAsset = () => {
@@ -23,9 +24,46 @@ const ListAsset = () => {
   const [selectedAsset, setSelectedAsset] = useState(null);
   const [fileInput, setFileInput] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null);
+  const [showExport, setShowExport] = useState(false);
+  const [openCsvPopover, setOpenCsvPopover] = useState(false);
+  const [openPdfPopover, setOpenPdfPopover] = useState(false);
 
   const handleFileChange = (e) => {
     setSelectedFile(e.target.files[0]);
+  };
+
+  const showEditHandler = (row) => {
+    setSelectedAsset(row);
+    setShowEdit(true);
+    setShowDelete(false);
+  };
+
+  const hideEditHandler = () => {
+    setSelectedAsset(null);
+    setShowEdit(false);
+  };
+
+  const showDeleteHandler = (no) => {
+    setSelectedAssetId(no);
+    setShowEdit(false);
+    setShowDelete(true);
+  };
+
+  const hideDeleteHandler = () => {
+    setShowDelete(false);
+  };
+
+  const showExportHandler = () => {
+    setShowExport((prev) => !prev);
+  };
+
+  const triggersCsv = {
+    onMouseEnter: () => setOpenCsvPopover(true),
+    onMouseLeave: () => setOpenCsvPopover(false),
+  };
+  const triggersPdf = {
+    onMouseEnter: () => setOpenPdfPopover(true),
+    onMouseLeave: () => setOpenPdfPopover(false),
   };
   
   useEffect(() => {
@@ -38,7 +76,7 @@ const ListAsset = () => {
 
   const handleFileUpload = async () => {
     if (!selectedFile) {
-      setNotification('Pilih CSV');
+      setNotification('Pilih File');
       setNotificationStatus(true);
       setNotificationInfo('Error');
       return;
@@ -61,7 +99,10 @@ const ListAsset = () => {
         setNotificationStatus(true);
         closeModalImportHandler();
       } else {
-        console.error('Error:', response.status, response.statusText);
+        const data = await response.json();
+        setNotification(data.message);
+        setNotificationStatus(true);
+        setNotificationInfo('Error');
       }
     } catch (error) {
       console.error('Error:', error);
@@ -180,32 +221,6 @@ const ListAsset = () => {
     
     // Menghapus anchor element dari dokumen
     document.body.removeChild(a);
-  };
-  
-  const [showImport, setShowImport] = useState(false);
-  const showImportHandler = () => {
-    setShowImport((prev) => !prev);
-  }
-
-  const showEditHandler = (row) => {
-    setSelectedAsset(row);
-    setShowEdit(true);
-    setShowDelete(false);
-  };
-
-  const hideEditHandler = () => {
-    setSelectedAsset(null);
-    setShowEdit(false);
-  };
-
-  const showDeleteHandler = (no) => {
-    setSelectedAssetId(no);
-    setShowEdit(false);
-    setShowDelete(true);
-  };
-
-  const hideDeleteHandler = () => {
-    setShowDelete(false);
   };
 
 
@@ -367,9 +382,9 @@ const handleExportRowsCsv = (rows) => {
                               <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/>
                           </svg>
                           <p class="mb-2 text-sm text-gray-500 dark:text-gray-400"><span class="font-semibold">Click to upload</span> or drag and drop</p>
-                          <p class="text-xs text-gray-500 dark:text-gray-400">Only CSV (MAX. 5MB)</p>
+                          <p class="text-xs text-gray-500 dark:text-gray-400">Only XLSX (MAX. 5MB)</p>
                       </div>
-                      <input className='' id="dropzone-file" type="file" accept=".csv, .xls" onChange={handleFileChange} />
+                      <input className='' id="dropzone-file" type="file" accept=".csv, .xlsx" onChange={handleFileChange} />
                   </label>
               </div>
               <button className='main-btn' onClick={handleFileUpload}>Upload</button>
@@ -541,30 +556,7 @@ const handleExportRowsCsv = (rows) => {
         </div>
       )}
 
-
-      
       <div className='p-2'>
-        {/* <div>
-        <DataTableExtensions
-          columns={columns}
-          data={DataListAsset}
-          filter
-          print={true}
-          export={true}
-          exportHeaders={true}
-          filterPlaceholder='Filter Data'
-        >
-          
-          <DataTable
-            noHeader
-            defaultSortField='no'
-            defaultSortAsc={false}
-            pagination
-            highlightOnHover
-          />
-        </DataTableExtensions>
-        </div> */}
-
         <div className='mt-10'>
           <MaterialReactTable
               columns={columnsNew}
@@ -575,67 +567,95 @@ const handleExportRowsCsv = (rows) => {
               paginationDisplayMode= 'pages'
               positionToolbarAlertBanner= 'bottom'
               renderTopToolbarCustomActions= {({ table }) => ( 
-              <div className='flex gap-1 flex-wrap p-2'>
-                  <div className='bg-blue-200'>
-                      <Button
-                          disabled={table.getPrePaginationRowModel().rows.length === 0}
-                          onClick={() =>
-                              handleExportRowsCsv(table.getPrePaginationRowModel().rows)
-                          }
-                          startIcon={<FileDownloadIcon />}
-                          >
-                          Export All Rows CSV
-                      </Button>
-
-                      <Button
-                          disabled={table.getRowModel().rows.length === 0}
-                          onClick={() => handleExportRowsCsv(table.getRowModel().rows)}
-                          startIcon={<FileDownloadIcon />}
-                          >
-                          Export Page Rows CSV
-                      </Button>
-
-                      <Button
-                          disabled={
-                              !table.getIsSomeRowsSelected() && !table.getIsAllRowsSelected()
-                          }
-                          onClick={() => handleExportRowsCsv(table.getSelectedRowModel().rows)}
-                          startIcon={<FileDownloadIcon />}
-                          >
-                          Export Selected Rows CSV
-                      </Button>
+                <div className='flex space-x-4'>
+                  <div className='flex items-center py-8'>
+                    <button className='main-btn' onClick={showExportHandler}>Export</button>
                   </div>
-                  
-                  <div className='bg-red-200'>
-                      <Button
-                          disabled={table.getPrePaginationRowModel().rows.length === 0}
-                          onClick={() =>
-                              handleExportRowsPdf(table.getPrePaginationRowModel().rows)
-                          }
-                          startIcon={<FileDownloadIcon />}
-                          >
-                          Export All Rows PDF
-                      </Button>
+                  {showExport && (
+                  <div className='flex flex-col space-y-1'>
+                      <Popover open={openCsvPopover} handler={setOpenCsvPopover} placement='right' animate={{mount: { scale: 1, y: 0 }, unmount: { scale: 0, y: 25 },}}>
+                      <div className='flex'>
+                        <PopoverHandler {...triggersCsv}>
+                          <button className='main-btn'>
+                            <FontAwesomeIcon icon={faFileCsv} size='xl' />
+                          </button>
+                        </PopoverHandler>
+                        <PopoverContent {...triggersCsv} className='bg-transparent z-50 shadow-none py-0.5 px-6 border-none'>
+                          <div className='flex gap-2'>
+                            <Button
+                                disabled={table.getPrePaginationRowModel().rows.length === 0}
+                                onClick={() =>
+                                    handleExportRowsCsv(table.getPrePaginationRowModel().rows)
+                                }
+                                startIcon={<FileDownloadIcon />}
+                                >
+                                Export All Rows CSV
+                            </Button>
 
-                      <Button
-                          disabled={table.getRowModel().rows.length === 0}
-                          onClick={() => handleExportRowsPdf(table.getRowModel().rows)}
-                          startIcon={<FileDownloadIcon />}
-                          >
-                          Export Page Rows PDF
-                      </Button>
+                            <Button
+                                disabled={table.getRowModel().rows.length === 0}
+                                onClick={() => handleExportRowsCsv(table.getRowModel().rows)}
+                                startIcon={<FileDownloadIcon />}
+                                >
+                                Export Page Rows CSV
+                            </Button>
 
-                      <Button
-                          disabled={
-                              !table.getIsSomeRowsSelected() && !table.getIsAllRowsSelected()
-                          }
-                          onClick={() => handleExportRowsPdf(table.getSelectedRowModel().rows)}
-                          startIcon={<FileDownloadIcon />}
-                          >
-                          Export Selected Rows PDF
-                      </Button>
+                            <Button
+                                disabled={
+                                    !table.getIsSomeRowsSelected() && !table.getIsAllRowsSelected()
+                                }
+                                onClick={() => handleExportRowsCsv(table.getSelectedRowModel().rows)}
+                                startIcon={<FileDownloadIcon />}
+                                >
+                                Export Selected Rows CSV
+                            </Button>
+                          </div>
+                        </PopoverContent>
+                      </div>
+                      </Popover>
+                      <Popover open={openPdfPopover} handler={setOpenPdfPopover} placement='right' animate={{mount: { scale: 1, y: 0 }, unmount: { scale: 0, y: 25 },}}>
+                      <div className='flex'>
+                        <PopoverHandler {...triggersPdf}>
+                          <button className='main-btn'>
+                            <FontAwesomeIcon icon={faFilePdf} size='xl' />
+                          </button>
+                        </PopoverHandler>
+                        <PopoverContent {...triggersPdf} className='bg-transparent z-50 shadow-none py-0.5 border-none px-6'>
+                          <div className='flex gap-2'>
+                            <Button
+                                disabled={table.getPrePaginationRowModel().rows.length === 0}
+                                onClick={() =>
+                                    handleExportRowsPdf(table.getPrePaginationRowModel().rows)
+                                }
+                                startIcon={<FileDownloadIcon />}
+                                >
+                                Export All Rows PDF
+                            </Button>
+
+                            <Button
+                                disabled={table.getRowModel().rows.length === 0}
+                                onClick={() => handleExportRowsPdf(table.getRowModel().rows)}
+                                startIcon={<FileDownloadIcon />}
+                                >
+                                Export Page Rows PDF
+                            </Button>
+
+                            <Button
+                                disabled={
+                                    !table.getIsSomeRowsSelected() && !table.getIsAllRowsSelected()
+                                }
+                                onClick={() => handleExportRowsPdf(table.getSelectedRowModel().rows)}
+                                startIcon={<FileDownloadIcon />}
+                                >
+                                Export Selected Rows PDF
+                            </Button>
+                          </div>
+                        </PopoverContent>
+                      </div>
+                      </Popover>
                   </div>
-              </div>
+                  )}
+                </div>
               )}
           />
         </div>

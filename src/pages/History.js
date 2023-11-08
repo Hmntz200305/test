@@ -12,9 +12,169 @@ import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import { Box, Button, colors } from '@mui/material';
+import { Tabs, TabsHeader, TabsBody, Tab, TabPanel, } from "@material-tailwind/react";
 Modal.setAppElement('#root');
 
 const History = () => {
+
+    const LogContent = () => (
+        <div className='p-0'>
+            <div className='mt-4'>
+                <MaterialReactTable 
+                    columns={columnsNew}
+                    data={HistoryTicket}
+                    enableRowSelection={true}
+                    enableClickToCopy={false}
+                    columnFilterDisplayMode= 'popover'
+                    paginationDisplayMode= 'pages'
+                    positionToolbarAlertBanner= 'bottom'
+                    renderTopToolbarCustomActions= {({ table }) => ( 
+                        <div className='flex gap-1 flex-wrap p-2'>
+                            <div className='bg-blue-200'>
+                                <Button
+                                    disabled={table.getPrePaginationRowModel().rows.length === 0}
+                                    onClick={() =>
+                                        handleExportRowsCsvTicket(table.getPrePaginationRowModel().rows)
+                                    }
+                                    startIcon={<FileDownloadIcon />}
+                                    >
+                                    Export All Rows CSV
+                                </Button>
+            
+                                <Button
+                                    disabled={table.getRowModel().rows.length === 0}
+                                    onClick={() => handleExportRowsCsvTicket(table.getRowModel().rows)}
+                                    startIcon={<FileDownloadIcon />}
+                                    >
+                                    Export Page Rows CSV
+                                </Button>
+            
+                                <Button
+                                    disabled={
+                                        !table.getIsSomeRowsSelected() && !table.getIsAllRowsSelected()
+                                    }
+                                    onClick={() => handleExportRowsCsvTicket(table.getSelectedRowModel().rows)}
+                                    startIcon={<FileDownloadIcon />}
+                                    >
+                                    Export Selected Rows CSV
+                                </Button>
+                            </div>
+                            
+                            <div className='bg-red-200'>
+                                <Button
+                                    disabled={table.getPrePaginationRowModel().rows.length === 0}
+                                    onClick={() =>
+                                        handleExportRowsPdfTicket(table.getPrePaginationRowModel().rows)
+                                    }
+                                    startIcon={<FileDownloadIcon />}
+                                    >
+                                    Export All Rows PDF
+                                </Button>
+            
+                                <Button
+                                    disabled={table.getRowModel().rows.length === 0}
+                                    onClick={() => handleExportRowsPdfTicket(table.getRowModel().rows)}
+                                    startIcon={<FileDownloadIcon />}
+                                    >
+                                    Export Page Rows PDF
+                                </Button>
+            
+                                <Button
+                                    disabled={
+                                        !table.getIsSomeRowsSelected() && !table.getIsAllRowsSelected()
+                                    }
+                                    onClick={() => handleExportRowsPdfTicket(table.getSelectedRowModel().rows)}
+                                    startIcon={<FileDownloadIcon />}
+                                    >
+                                    Export Selected Rows PDF
+                                </Button>
+                            </div>
+                        </div>
+                    )}
+                />
+            </div>
+        </div>
+    );
+    const PeminjamanContent = () => (
+        <div className='p-0'>
+            <div className='mt-4'>
+                <MaterialReactTable 
+                    columns={Peminjaman}
+                    data={HistoryLoanData}
+                    enableRowSelection={true}
+                    enableClickToCopy={false}
+                    columnFilterDisplayMode= 'popover'
+                    paginationDisplayMode= 'pages'
+                    positionToolbarAlertBanner= 'bottom'
+                    renderTopToolbarCustomActions= {({ table }) => ( 
+                        <div className='flex gap-1 flex-wrap p-2'>
+                            <div className='bg-blue-200'>
+                                <Button
+                                    disabled={table.getPrePaginationRowModel().rows.length === 0}
+                                    onClick={() =>
+                                        handleExportRowsCsvPeminjaman(table.getPrePaginationRowModel().rows)
+                                    }
+                                    startIcon={<FileDownloadIcon />}
+                                    >
+                                    Export All Rows CSV
+                                </Button>
+            
+                                <Button
+                                    disabled={table.getRowModel().rows.length === 0}
+                                    onClick={() => handleExportRowsCsvPeminjaman(table.getRowModel().rows)}
+                                    startIcon={<FileDownloadIcon />}
+                                    >
+                                    Export Page Rows CSV
+                                </Button>
+            
+                                <Button
+                                    disabled={
+                                        !table.getIsSomeRowsSelected() && !table.getIsAllRowsSelected()
+                                    }
+                                    onClick={() => handleExportRowsCsvPeminjaman(table.getSelectedRowModel().rows)}
+                                    startIcon={<FileDownloadIcon />}
+                                    >
+                                    Export Selected Rows CSV
+                                </Button>
+                            </div>
+                            
+                            <div className='bg-red-200'>
+                                <Button
+                                    disabled={table.getPrePaginationRowModel().rows.length === 0}
+                                    onClick={() =>
+                                        handleExportRowsPdfPeminjaman(table.getPrePaginationRowModel().rows)
+                                    }
+                                    startIcon={<FileDownloadIcon />}
+                                    >
+                                    Export All Rows PDF
+                                </Button>
+            
+                                <Button
+                                    disabled={table.getRowModel().rows.length === 0}
+                                    onClick={() => handleExportRowsPdfPeminjaman(table.getRowModel().rows)}
+                                    startIcon={<FileDownloadIcon />}
+                                    >
+                                    Export Page Rows PDF
+                                </Button>
+            
+                                <Button
+                                    disabled={
+                                        !table.getIsSomeRowsSelected() && !table.getIsAllRowsSelected()
+                                    }
+                                    onClick={() => handleExportRowsPdfPeminjaman(table.getSelectedRowModel().rows)}
+                                    startIcon={<FileDownloadIcon />}
+                                    >
+                                    Export Selected Rows PDF
+                                </Button>
+                            </div>
+                        </div>
+                    )}
+                />
+            </div>
+        </div>
+    );
+    
+
     const { refreshHistoryTicket, HistoryTicket, refreshHistoryLoanData, HistoryLoanData } = useAuth();
     const [selectedAssetDetails, setSelectedAssetDetails] = useState([]);
 
@@ -25,27 +185,19 @@ const History = () => {
         // eslint-disable-next-line
     }, [])
 
-    // Menu
-    const [showMain, setShowMain] = useState(true);
-    const [showTicket, setShowTicket] = useState(false);
-    const [showPeminjaman, setShowPeminjaman] = useState(false);
-    const [clickedTicket, setClickedTicket] = useState(false);
-    const [clickedPeminjaman, setClickedPeminjaman] = useState(false);
-  
-    const showTicketHandler = () => {
-      setShowMain(true);
-      setShowTicket((prev) => !prev);
-      setShowPeminjaman(false);
-      setClickedTicket(true); // Set clickedTicket to true
-      setClickedPeminjaman(false); // Set clickedPeminjaman to false
-    };
-    const showPeminjamanHandler = () => {
-      setShowMain(true);
-      setShowTicket(false);
-      setShowPeminjaman((prev) => !prev);
-      setClickedTicket(false); // Set clickedTicket to false
-      setClickedPeminjaman(true); // Set clickedPeminjaman to true
-    };
+    const [activeTab, setActiveTab] = React.useState("log");
+    const data = [
+        {
+        label: "Log",
+        value: "log",
+        content: <LogContent />,
+        },
+        {
+        label: "Peminjaman",
+        value: "peminjaman",
+        content: <PeminjamanContent />,
+        },
+    ];
 
     // Modal
     const [showMoreDetail, setShowMoreDetail] = useState(false);
@@ -323,20 +475,44 @@ const History = () => {
 
     return (
         <>
-            <div className='p-2'>
-                <div className='bg-black rounded-2xl p-4 shadow'>
-                    <h2 className='text-white'>Selamat datang di History page :)</h2>
-                </div>
-                {showMain && (
-                <div className="flex flex-col items-center justify-center bg-white p-2 rounded-2xl">
-                    <h1 className="text-2xl font-semibold mb-6">Select Menu</h1>
-                    <div className="flex border-b border-gray-200">
-                        <button className={`w-32 py-4 relative transition-transform duration-300 ${clickedTicket ? 'border-b-2 border-gray-800 transform translate-x-32 ' : ''}`} onClick={showTicketHandler}>Log</button>
-                        <button className={`w-32 py-4 relative transition-transform duration-300 ${clickedPeminjaman ? 'border-b-2 border-gray-800 transform translate-x-32' : ''}`} onClick={showPeminjamanHandler}>Peminjaman</button>
-                    </div>
-                </div>
-                )}
+            <div className='bg-black rounded-2xl p-4 shadow'>
+                <h2 className='text-white'>Selamat datang di History page :)</h2>
             </div>
+            
+            <div className='bg-white rounded mt-6 '>
+                <div className='flex justify-center'>
+                    <h1 className="text-2xl font-semibold mt-6">Select Menu</h1>
+                </div>
+                <Tabs value={activeTab}>
+                    <TabsHeader
+                    className="rounded-none p-0 border-b border-blue-gray-50 mt-4 bg-white"
+                    indicatorProps={{
+                        className:
+                        "bg-transparent border-b-2 border-gray-900 shadow-none rounded-none",
+                    }}
+                    >
+                    {data.map(({ label, value }) => (
+                        <Tab
+                        key={value}
+                        value={value}
+                        onClick={() => setActiveTab(value)}
+                        className={activeTab === value ? "text-gray-800" : "hover:text-gray-500"}
+                        >
+                        {label}
+                        </Tab>
+                    ))}
+                    </TabsHeader>
+                    <TabsBody>
+                    {data.map(({ value, content }) => (
+                        <TabPanel key={value} value={value}>
+                        {content}
+                        </TabPanel>
+                    ))}
+                    </TabsBody>
+                </Tabs>
+            </div>
+
+            
 
             <Modal
                 isOpen={showMoreDetail}
@@ -356,186 +532,12 @@ const History = () => {
                     Close
                 </button>
             </Modal>
-            {/* Ticket */}
-            {showTicket && (
-            <div className='p-2'>
-                <div className='mt-4'>
-                    <MaterialReactTable 
-                        columns={columnsNew}
-                        data={HistoryTicket}
-                        enableRowSelection={true}
-                        enableClickToCopy={false}
-                        columnFilterDisplayMode= 'popover'
-                        paginationDisplayMode= 'pages'
-                        positionToolbarAlertBanner= 'bottom'
-                        renderTopToolbarCustomActions= {({ table }) => ( 
-                            <div className='flex gap-1 flex-wrap p-2'>
-                                <div className='bg-blue-200'>
-                                    <Button
-                                        disabled={table.getPrePaginationRowModel().rows.length === 0}
-                                        onClick={() =>
-                                            handleExportRowsCsvTicket(table.getPrePaginationRowModel().rows)
-                                        }
-                                        startIcon={<FileDownloadIcon />}
-                                        >
-                                        Export All Rows CSV
-                                    </Button>
-              
-                                    <Button
-                                        disabled={table.getRowModel().rows.length === 0}
-                                        onClick={() => handleExportRowsCsvTicket(table.getRowModel().rows)}
-                                        startIcon={<FileDownloadIcon />}
-                                        >
-                                        Export Page Rows CSV
-                                    </Button>
-              
-                                    <Button
-                                        disabled={
-                                            !table.getIsSomeRowsSelected() && !table.getIsAllRowsSelected()
-                                        }
-                                        onClick={() => handleExportRowsCsvTicket(table.getSelectedRowModel().rows)}
-                                        startIcon={<FileDownloadIcon />}
-                                        >
-                                        Export Selected Rows CSV
-                                    </Button>
-                                </div>
-                                
-                                <div className='bg-red-200'>
-                                    <Button
-                                        disabled={table.getPrePaginationRowModel().rows.length === 0}
-                                        onClick={() =>
-                                            handleExportRowsPdfTicket(table.getPrePaginationRowModel().rows)
-                                        }
-                                        startIcon={<FileDownloadIcon />}
-                                        >
-                                        Export All Rows PDF
-                                    </Button>
-              
-                                    <Button
-                                        disabled={table.getRowModel().rows.length === 0}
-                                        onClick={() => handleExportRowsPdfTicket(table.getRowModel().rows)}
-                                        startIcon={<FileDownloadIcon />}
-                                        >
-                                        Export Page Rows PDF
-                                    </Button>
-              
-                                    <Button
-                                        disabled={
-                                            !table.getIsSomeRowsSelected() && !table.getIsAllRowsSelected()
-                                        }
-                                        onClick={() => handleExportRowsPdfTicket(table.getSelectedRowModel().rows)}
-                                        startIcon={<FileDownloadIcon />}
-                                        >
-                                        Export Selected Rows PDF
-                                    </Button>
-                                </div>
-                            </div>
-                            )}
-                    />
-                </div>
-            </div>
-            )}
 
+            {/* Log */}
+            
             {/* Peminjaman */}
-            {showPeminjaman && (
-            <div className='p-2'>
-                peminjaman
-                <div className='mt-4'>
-                    <MaterialReactTable 
-                        columns={Peminjaman}
-                        data={HistoryLoanData}
-                        enableRowSelection={true}
-                        enableClickToCopy={false}
-                        columnFilterDisplayMode= 'popover'
-                        paginationDisplayMode= 'pages'
-                        positionToolbarAlertBanner= 'bottom'
-                        renderTopToolbarCustomActions= {({ table }) => ( 
-                            <div className='flex gap-1 flex-wrap p-2'>
-                                <div className='bg-blue-200'>
-                                    <Button
-                                        disabled={table.getPrePaginationRowModel().rows.length === 0}
-                                        onClick={() =>
-                                            handleExportRowsCsvPeminjaman(table.getPrePaginationRowModel().rows)
-                                        }
-                                        startIcon={<FileDownloadIcon />}
-                                        >
-                                        Export All Rows CSV
-                                    </Button>
-              
-                                    <Button
-                                        disabled={table.getRowModel().rows.length === 0}
-                                        onClick={() => handleExportRowsCsvPeminjaman(table.getRowModel().rows)}
-                                        startIcon={<FileDownloadIcon />}
-                                        >
-                                        Export Page Rows CSV
-                                    </Button>
-              
-                                    <Button
-                                        disabled={
-                                            !table.getIsSomeRowsSelected() && !table.getIsAllRowsSelected()
-                                        }
-                                        onClick={() => handleExportRowsCsvPeminjaman(table.getSelectedRowModel().rows)}
-                                        startIcon={<FileDownloadIcon />}
-                                        >
-                                        Export Selected Rows CSV
-                                    </Button>
-                                </div>
-                                
-                                <div className='bg-red-200'>
-                                    <Button
-                                        disabled={table.getPrePaginationRowModel().rows.length === 0}
-                                        onClick={() =>
-                                            handleExportRowsPdfPeminjaman(table.getPrePaginationRowModel().rows)
-                                        }
-                                        startIcon={<FileDownloadIcon />}
-                                        >
-                                        Export All Rows PDF
-                                    </Button>
-              
-                                    <Button
-                                        disabled={table.getRowModel().rows.length === 0}
-                                        onClick={() => handleExportRowsPdfPeminjaman(table.getRowModel().rows)}
-                                        startIcon={<FileDownloadIcon />}
-                                        >
-                                        Export Page Rows PDF
-                                    </Button>
-              
-                                    <Button
-                                        disabled={
-                                            !table.getIsSomeRowsSelected() && !table.getIsAllRowsSelected()
-                                        }
-                                        onClick={() => handleExportRowsPdfPeminjaman(table.getSelectedRowModel().rows)}
-                                        startIcon={<FileDownloadIcon />}
-                                        >
-                                        Export Selected Rows PDF
-                                    </Button>
-                                </div>
-                            </div>
-                            )}
-                    />
-                </div>
-                {/* <div>
-                <DataTableExtensions
-                    columns={Loan}
-                    data={HistoryLoanData}
-                    fileName='hehe'
-                    filter
-                    print
-                    export
-                    exportHeaders
-                    filterPlaceholder='Filter Data'
-                >
-                <DataTable
-                    noHeader
-                    defaultSortField='no'
-                    defaultSortAsc={false}
-                    pagination
-                    highlightOnHover
-                />
-                </DataTableExtensions>
-                </div> */}
-            </div>
-            )}
+            
+
         </>
     )
 }
