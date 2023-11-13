@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import 'react-data-table-component-extensions/dist/index.css';
 import { faDownload, faFileCsv, faFileExport, faUpload, faFileImport, faPenToSquare, faPrint, faTrash, faFilePdf } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -27,6 +27,7 @@ const ListAsset = () => {
   const [showExport, setShowExport] = useState(false);
   const [openCsvPopover, setOpenCsvPopover] = useState(false);
   const [openPdfPopover, setOpenPdfPopover] = useState(false);
+  const tableRef = useRef(null)
 
   const handleFileChange = (e) => {
     setSelectedFile(e.target.files[0]);
@@ -363,35 +364,6 @@ const handleExportRowsCsv = (rows) => {
       </div>
 
 
-      <div className='p-2 flex space-x-2 items-center'>
-        <button className='main-btn' onClick={showModalImportHandler}>Import</button>
-        <Modal 
-          isOpen={showModalImport}
-          onRequestClose={closeModalImportHandler}
-          contentLabel="Contoh Modal"
-          overlayClassName="fixed inset-0 z-10 bg-gray-500 bg-opacity-75 flex items-center justify-center"
-          className="modal-content bg-white w-1/2 p-4 rounded shadow-md"
-          shouldCloseOnOverlayClick={false}
-        >
-          <div className='flex flex-col gap-1'>
-              <button className='main-btn' onClick={handleDownload}>Download</button>
-              <div class="flex items-center justify-center w-full">
-                  <label for="dropzone-file" class="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-800 border-dashed rounded-lg cursor-pointer bg-gray-800 dark:hover:bg-bray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600">
-                      <div class="flex flex-col items-center justify-center pt-5 pb-6 px-2">
-                          <svg class="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
-                              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/>
-                          </svg>
-                          <p class="mb-2 text-sm text-gray-500 dark:text-gray-400"><span class="font-semibold">Click to upload</span> or drag and drop</p>
-                          <p class="text-xs text-gray-500 dark:text-gray-400">Only XLSX (MAX. 5MB)</p>
-                      </div>
-                      <input className='' id="dropzone-file" type="file" accept=".csv, .xlsx" onChange={handleFileChange} />
-                  </label>
-              </div>
-              <button className='main-btn' onClick={handleFileUpload}>Upload</button>
-          </div>
-          <button className='main-btn mt-2' onClick={closeModalImportHandler}>Close</button>
-        </Modal>
-      </div>
 
       {showEdit && (
         <div className='p-2'>
@@ -543,7 +515,6 @@ const handleExportRowsCsv = (rows) => {
               <h1 className="text-2xl font-semibold">Select Action</h1>
               <p>Apakah anda yakin ingin menghapus Asset ini?</p>
             </div>
-
             <div className="flex space-x-4 mt-5">
               <button className="main-btn hover-bg-slate-600 text-white font-semibold py-2 px-4 rounded" onClick={hideDeleteHandler}>
                 Cancel
@@ -556,6 +527,118 @@ const handleExportRowsCsv = (rows) => {
         </div>
       )}
 
+      {/* IMPORT */}
+      <div className='p-2 flex space-x-2 items-center'>
+        <button className='main-btn' onClick={showModalImportHandler}>Import</button>
+        <Modal 
+          isOpen={showModalImport}
+          onRequestClose={closeModalImportHandler}
+          contentLabel="Contoh Modal"
+          overlayClassName="fixed inset-0 z-10 bg-gray-500 bg-opacity-75 flex items-center justify-center"
+          className="modal-content bg-white w-1/2 p-4 rounded shadow-md"
+          shouldCloseOnOverlayClick={false}
+        >
+          <div className='flex flex-col gap-1'>
+              <button className='main-btn' onClick={handleDownload}>Download</button>
+              <div class="flex items-center justify-center w-full">
+                  <label for="dropzone-file" class="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-800 border-dashed rounded-lg cursor-pointer bg-gray-800 dark:hover:bg-bray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600">
+                      <div class="flex flex-col items-center justify-center pt-5 pb-6 px-2">
+                          <svg class="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
+                              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/>
+                          </svg>
+                          <p class="mb-2 text-sm text-gray-500 dark:text-gray-400"><span class="font-semibold">Click to upload</span> or drag and drop</p>
+                          <p class="text-xs text-gray-500 dark:text-gray-400">Only XLSX (MAX. 5MB)</p>
+                      </div>
+                      <input className='' id="dropzone-file" type="file" accept=".csv, .xlsx" onChange={handleFileChange} />
+                  </label>
+              </div>
+              <button className='main-btn' onClick={handleFileUpload}>Upload</button>
+          </div>
+          <button className='main-btn mt-2' onClick={closeModalImportHandler}>Close</button>
+        </Modal>
+      </div>
+
+      {/* EKSPORT */}
+      <div className='flex space-x-4'>
+        <div className='flex items-center py-8'>
+          <button className='main-btn' onClick={showExportHandler}>Export</button>
+        </div>
+        {showExport && (
+        <div className='flex flex-col space-y-1'>
+            <Popover open={openCsvPopover} handler={setOpenCsvPopover} placement='right' animate={{mount: { scale: 1, y: 0 }, unmount: { scale: 0, y: 25 },}}>
+            <div className='flex'>
+              <PopoverHandler {...triggersCsv}>
+                <button className='main-btn'>
+                  <FontAwesomeIcon icon={faFileCsv} size='xl' />
+                </button>
+              </PopoverHandler>
+              <PopoverContent {...triggersCsv} className='bg-[#efefef] z-50 shadow-none py-0.5 px-2 border-none'>
+                <div className='flex gap-2'>
+                <Button
+                    disabled={tableRef.current?.getPrePaginationRowModel().rows.length === 0}
+                    onClick={() => handleExportRowsCsv(tableRef.current?.getPrePaginationRowModel().rows)}
+                  >
+                    All Rows
+                  </Button>
+
+                  <Button
+                    disabled={tableRef.current?.getRowModel().rows.length === 0}
+                    onClick={() => handleExportRowsCsv(tableRef.current?.getRowModel().rows)}
+                  >
+                    Page Rows
+                  </Button>
+
+                  <Button
+                    disabled={
+                      !tableRef.current?.getIsSomeRowsSelected() && !tableRef.current?.getIsAllRowsSelected()
+                    }
+                    onClick={() => handleExportRowsCsv(tableRef.current?.getSelectedRowModel().rows)}
+                  >
+                    Selected Rows
+                  </Button>
+                </div>
+              </PopoverContent>
+            </div>
+            </Popover>
+            <Popover open={openPdfPopover} handler={setOpenPdfPopover} placement='right' animate={{mount: { scale: 1, y: 0 }, unmount: { scale: 0, y: 25 },}}>
+            <div className='flex'>
+              <PopoverHandler {...triggersPdf}>
+                <button className='main-btn'>
+                  <FontAwesomeIcon icon={faFilePdf} size='xl' />
+                </button>
+              </PopoverHandler>
+              <PopoverContent {...triggersPdf} className='bg-[#efefef] z-50 shadow-none py-0.5 border-none px-2'>
+                <div className='flex gap-2'>
+                <Button
+            disabled={tableRef.current?.getPrePaginationRowModel().rows.length === 0}
+            onClick={() => handleExportRowsPdf(tableRef.current?.getPrePaginationRowModel().rows)}
+          >
+            All Rows
+          </Button>
+
+          <Button
+            disabled={tableRef.current?.getRowModel().rows.length === 0}
+            onClick={() => handleExportRowsPdf(tableRef.current?.getRowModel().rows)}
+          >
+            Page Rows
+          </Button>
+
+          <Button
+            disabled={
+              !tableRef.current?.getIsSomeRowsSelected() && !tableRef.current?.getIsAllRowsSelected()
+            }
+            onClick={() => handleExportRowsPdf(tableRef.current?.getSelectedRowModel().rows)}
+          >
+            Selected Rows
+          </Button>
+                </div>
+              </PopoverContent>
+            </div>
+            </Popover>
+        </div>
+        )}
+      </div>
+
       <div className='p-2'>
         <div className='mt-10'>
           <MaterialReactTable
@@ -566,100 +649,12 @@ const handleExportRowsCsv = (rows) => {
               columnFilterDisplayMode= 'popover'
               paginationDisplayMode= 'pages'
               positionToolbarAlertBanner= 'bottom'
-              renderTopToolbarCustomActions= {({ table }) => ( 
-                <div className='flex space-x-4'>
-                  <div className='flex items-center py-8'>
-                    <button className='main-btn' onClick={showExportHandler}>Export</button>
-                  </div>
-                  {showExport && (
-                  <div className='flex flex-col space-y-1'>
-                      <Popover open={openCsvPopover} handler={setOpenCsvPopover} placement='right' animate={{mount: { scale: 1, y: 0 }, unmount: { scale: 0, y: 25 },}}>
-                      <div className='flex'>
-                        <PopoverHandler {...triggersCsv}>
-                          <button className='main-btn'>
-                            <FontAwesomeIcon icon={faFileCsv} size='xl' />
-                          </button>
-                        </PopoverHandler>
-                        <PopoverContent {...triggersCsv} className='bg-transparent z-50 shadow-none py-0.5 px-6 border-none'>
-                          <div className='flex gap-2'>
-                            <Button
-                                disabled={table.getPrePaginationRowModel().rows.length === 0}
-                                onClick={() =>
-                                    handleExportRowsCsv(table.getPrePaginationRowModel().rows)
-                                }
-                                startIcon={<FileDownloadIcon />}
-                                >
-                                Export All Rows CSV
-                            </Button>
-
-                            <Button
-                                disabled={table.getRowModel().rows.length === 0}
-                                onClick={() => handleExportRowsCsv(table.getRowModel().rows)}
-                                startIcon={<FileDownloadIcon />}
-                                >
-                                Export Page Rows CSV
-                            </Button>
-
-                            <Button
-                                disabled={
-                                    !table.getIsSomeRowsSelected() && !table.getIsAllRowsSelected()
-                                }
-                                onClick={() => handleExportRowsCsv(table.getSelectedRowModel().rows)}
-                                startIcon={<FileDownloadIcon />}
-                                >
-                                Export Selected Rows CSV
-                            </Button>
-                          </div>
-                        </PopoverContent>
-                      </div>
-                      </Popover>
-                      <Popover open={openPdfPopover} handler={setOpenPdfPopover} placement='right' animate={{mount: { scale: 1, y: 0 }, unmount: { scale: 0, y: 25 },}}>
-                      <div className='flex'>
-                        <PopoverHandler {...triggersPdf}>
-                          <button className='main-btn'>
-                            <FontAwesomeIcon icon={faFilePdf} size='xl' />
-                          </button>
-                        </PopoverHandler>
-                        <PopoverContent {...triggersPdf} className='bg-transparent z-50 shadow-none py-0.5 border-none px-6'>
-                          <div className='flex gap-2'>
-                            <Button
-                                disabled={table.getPrePaginationRowModel().rows.length === 0}
-                                onClick={() =>
-                                    handleExportRowsPdf(table.getPrePaginationRowModel().rows)
-                                }
-                                startIcon={<FileDownloadIcon />}
-                                >
-                                Export All Rows PDF
-                            </Button>
-
-                            <Button
-                                disabled={table.getRowModel().rows.length === 0}
-                                onClick={() => handleExportRowsPdf(table.getRowModel().rows)}
-                                startIcon={<FileDownloadIcon />}
-                                >
-                                Export Page Rows PDF
-                            </Button>
-
-                            <Button
-                                disabled={
-                                    !table.getIsSomeRowsSelected() && !table.getIsAllRowsSelected()
-                                }
-                                onClick={() => handleExportRowsPdf(table.getSelectedRowModel().rows)}
-                                startIcon={<FileDownloadIcon />}
-                                >
-                                Export Selected Rows PDF
-                            </Button>
-                          </div>
-                        </PopoverContent>
-                      </div>
-                      </Popover>
-                  </div>
-                  )}
-                </div>
-              )}
+              renderTopToolbarCustomActions= {({ table }) => {
+                tableRef.current = table;
+                return null; 
+              }}
           />
         </div>
-        
       </div>
     </>
   );

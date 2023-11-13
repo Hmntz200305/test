@@ -54,24 +54,29 @@ class AddAsset(Resource):
                     file = request.files.get('addAssetImage')
                     if not validate_addasset(ids, nama, deskripsi, brand, model, status, lokasi, kategori, sn):
                         return {"message": "Data is incomplete"}, 400
-                    if file:
-                        original_filename = secure_filename(file.filename)
-                        file_extension = os.path.splitext(original_filename)[1]
-                        filename = secure_filename(ids) + file_extension
-                        save_path = os.path.join(current_app.config['UPLOAD_FOLDER'], ids)
-                        os.makedirs(save_path, exist_ok=True)
-                        file.save(os.path.join(save_path, filename))
-                        image_path = ('http://sipanda.online:5000/static/upload/' + ids + '/' + filename)
-                        lmd.execute("INSERT INTO assets (asset, name, description, brand, model, status, location, category, serialnumber, photo) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", (ids, nama, deskripsi, brand, model, status, lokasi, kategori, sn, image_path,))
-                        db.commit()
-                        lmd.close()
-                        return {"message": "Asset successfully added with Photo"}, 200
+                    lmd.execute('SELECT count(*) from assets where asset = %s', (ids,))
+                    checking = lmd.fetchone()[0]
+                    if checking == 0:
+                        if file:
+                            original_filename = secure_filename(file.filename)
+                            file_extension = os.path.splitext(original_filename)[1]
+                            filename = secure_filename(ids) + file_extension
+                            save_path = os.path.join(current_app.config['UPLOAD_FOLDER'], ids)
+                            os.makedirs(save_path, exist_ok=True)
+                            file.save(os.path.join(save_path, filename))
+                            image_path = ('http://sipanda.online:5000/static/upload/' + ids + '/' + filename)
+                            lmd.execute("INSERT INTO assets (asset, name, description, brand, model, status, location, category, serialnumber, photo) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", (ids, nama, deskripsi, brand, model, status, lokasi, kategori, sn, image_path,))
+                            db.commit()
+                            lmd.close()
+                            return {"message": "Asset successfully added with Photo"}, 200
+                        else:
+                            image_path = ('http://sipanda.online:5000/static/Default/images.jfif')
+                            lmd.execute("INSERT INTO assets (asset, name, description, brand, model, status, location, category, serialnumber, photo) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", (ids, nama, deskripsi, brand, model, status, lokasi, kategori, sn, image_path))
+                            db.commit()
+                            lmd.close()
+                        return {"message": "Asset successfully added"}, 200
                     else:
-                        image_path = ('http://sipanda.online:5000/static/Default/images.jfif')
-                        lmd.execute("INSERT INTO assets (asset, name, description, brand, model, status, location, category, serialnumber, photo) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", (ids, nama, deskripsi, brand, model, status, lokasi, kategori, sn, image_path))
-                        db.commit()
-                        lmd.close()
-                    return {"message": "Asset successfully added"}, 200
+                        return {'message': 'AssetID telah tersedia, inputkan dengan ID yang berbeda'}, 400
                 else:
                     return {"message": "You don't have access to run this command"}, 403
 

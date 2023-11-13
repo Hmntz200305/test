@@ -25,8 +25,8 @@ class UploadCsv(Resource):
             header = pd.read_excel(uploaded_file, header=None, nrows=1)
             if header.shape[1] == len(col_names) and header.columns.to_list() == list(range(len(col_names))):
                 if header[0][0] == col_names[0] and header[1][0] == col_names[1] and header[2][0] == col_names[2] and header[3][0] == col_names[3] and header[4][0] == col_names[4] and header[5][0] == col_names[5] and header[6][0] == col_names[6] and header[7][0] == col_names[7] and header[8][0] == col_names[8] and header[9][0] == col_names[9]:
-                    print('yes')
                     data = pd.read_excel(uploaded_file, names=col_names, header=None, skiprows=1)
+                    return {'message': 'Import Data berhasil'}
                 else:
                     return {'message': 'Header tidak sesuai dari yang seharusnya'}, 400
             else:
