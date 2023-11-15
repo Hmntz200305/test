@@ -14,9 +14,96 @@ import autoTable from 'jspdf-autotable';
 import { DataGrid } from '@mui/x-data-grid';
 import Modal from 'react-modal';
 import { Popover, PopoverHandler, PopoverContent, } from "@material-tailwind/react";
+import { Tabs, TabsHeader, TabsBody, Tab, TabPanel, } from "@material-tailwind/react";
 Modal.setAppElement('#root');
 
 const ListAsset = () => {
+
+  const ExportContent = () => {
+    <div className='flex space-x-10 p-2'>
+      <div className='flex items-center'>
+        <button className='main-btn' onClick={showExportHandler}>Export</button>
+      </div>
+      {showExport && (
+      <div className='flex flex-col space-y-1'>
+        <Popover open={openCsvPopover} handler={setOpenCsvPopover} placement='right' animate={{mount: { scale: 1, y: 0 }, unmount: { scale: 0, y: 25 },}}>
+          <div className='flex'>
+            <PopoverHandler {...triggersCsv}>
+              <button className='main-btn'>
+                <FontAwesomeIcon icon={faFileCsv} size='xl' />
+              </button>
+            </PopoverHandler>
+            <PopoverContent {...triggersCsv} className='bg-lime-500 space-x-12 z-50 shadow-none py-0.5 px-2 border-none'>
+              <div className='flex gap-10'>
+                <Button disabled={tableRef.current?.getPrePaginationRowModel().rows.length === 0} onClick={() => handleExportRowsCsv(tableRef.current?.getPrePaginationRowModel().rows)}>
+                  All Rows
+                </Button>
+                <Button disabled={tableRef.current?.getRowModel().rows.length === 0} onClick={() => handleExportRowsCsv(tableRef.current?.getRowModel().rows)}>
+                  Page Rows
+                </Button>
+                <Button disabled={!tableRef.current?.getIsSomeRowsSelected() && !tableRef.current?.getIsAllRowsSelected()} onClick={() => handleExportRowsCsv(tableRef.current?.getSelectedRowModel().rows)}>
+                  Selected Rows
+                </Button>
+              </div>
+            </PopoverContent>
+          </div>
+        </Popover>
+        <Popover open={openPdfPopover} handler={setOpenPdfPopover} placement='right' animate={{mount: { scale: 1, y: 0 }, unmount: { scale: 0, y: 25 },}}>
+          <div className='flex'>
+            <PopoverHandler {...triggersPdf}>
+              <button className='main-btn'>
+                <FontAwesomeIcon icon={faFilePdf} size='xl' />
+              </button>
+            </PopoverHandler>
+            <PopoverContent {...triggersPdf} className='bg-lime-500 space-x-12 z-50 shadow-none py-0.5 border-none px-2'>
+              <div className='flex gap-10'>
+                <Button disabled={tableRef.current?.getPrePaginationRowModel().rows.length === 0} onClick={() => handleExportRowsPdf(tableRef.current?.getPrePaginationRowModel().rows)}>
+                  All Rows
+                </Button>
+                <Button disabled={tableRef.current?.getRowModel().rows.length === 0} onClick={() => handleExportRowsPdf(tableRef.current?.getRowModel().rows)}>
+                  Page Rows
+                </Button>
+                <Button disabled={!tableRef.current?.getIsSomeRowsSelected() && !tableRef.current?.getIsAllRowsSelected()} onClick={() => handleExportRowsPdf(tableRef.current?.getSelectedRowModel().rows)}>
+                  Selected Rows
+                </Button>
+              </div>
+            </PopoverContent>
+          </div>
+        </Popover>
+      </div>
+      )}
+    </div>
+  }
+
+  const ImportContent = () => {
+    <div className='p-2 flex space-x-10'>
+      <div className='flex items-center'>
+        <button className='main-btn' onClick={showImportHandler}>Import</button>
+      </div>
+      {showImport && (
+        <div className='flex flex-col gap-1 flex-grow break-all'>
+          <p className=''>Silahkan download terlebih dahulu template untuk importnya:
+            <span className='font-semibold underline cursor-pointer' onClick={handleDownload}>Download</span>
+          </p>
+          <div className="flex items-center">
+            <label for="dropzone-file" className="flex flex-col flex-grow items-center justify-center h-32 w-full border-2 border-gray-800 border-dashed rounded-lg cursor-pointer">
+              <div className="flex flex-col items-center justify-center pt-5 pb-6 px-2">
+                <svg className="w-8 h-8 mb-4 text-gray-800" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
+                  <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/>
+                </svg>
+                <p className="mb-2 text-sm text-gray-800"><span className="font-semibold">Click to upload</span> or drag and drop</p>
+                <p className="text-xs text-gray-800">Only XLSX (MAX. 10MB)</p>
+              </div>
+              <input className='hidden' id="dropzone-file" type="file" accept=".csv, .xlsx" onChange={handleFileChange} />
+            </label>
+          </div>
+          <button className='main-btn' onClick={handleFileUpload}>Upload</button>
+        </div>
+      )}
+    </div>
+  }
+
+
   const { token, Role, DataListAsset, refreshAssetData, refreshStatusList, StatusOptions, LocationOptions, refreshLocationList, refreshCategoryList, CategoryOptions, setNotification, setNotificationInfo, setNotificationStatus } = useAuth();
   const [showEdit, setShowEdit] = useState(false);
   const [showDelete, setShowDelete] = useState(false);
@@ -25,6 +112,7 @@ const ListAsset = () => {
   const [fileInput, setFileInput] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null);
   const [showExport, setShowExport] = useState(false);
+  const [showImport, setShowImport] = useState(false);
   const [openCsvPopover, setOpenCsvPopover] = useState(false);
   const [openPdfPopover, setOpenPdfPopover] = useState(false);
   const tableRef = useRef(null)
@@ -56,6 +144,10 @@ const ListAsset = () => {
 
   const showExportHandler = () => {
     setShowExport((prev) => !prev);
+  };
+
+  const showImportHandler = () => {
+    setShowImport((prev) => !prev);
   };
 
   const triggersCsv = {
@@ -98,7 +190,6 @@ const ListAsset = () => {
         refreshAssetData();
         setNotification(data.message);
         setNotificationStatus(true);
-        closeModalImportHandler();
       } else {
         const data = await response.json();
         setNotification(data.message);
@@ -224,6 +315,19 @@ const ListAsset = () => {
     document.body.removeChild(a);
   };
 
+  const [activeTab, setActiveTab] = React.useState("import");
+    const data = [
+    {
+        label: "Import",
+        value: "import",
+        content: <ImportContent />,
+    },
+    {
+      label: "Export",
+      value: "export",
+      content: <ExportContent />,
+    },
+    ];
 
   // NEW TABLE
 const columnHelper = createMRTColumnHelper();
@@ -342,18 +446,6 @@ const handleExportRowsCsv = (rows) => {
   doc.save('mrt-pdf-example.pdf');
 };
   // END NEW TABLE`
-
-
-  // MODAL
-  const [showModalImport, setShowModalImport] = useState(false);
-
-    const showModalImportHandler = () => {
-        setShowModalImport(true);
-      };
-    const closeModalImportHandler = () => {
-        setShowModalImport(false);
-    };
-
 
   return (
     <>
@@ -527,116 +619,36 @@ const handleExportRowsCsv = (rows) => {
         </div>
       )}
 
-      {/* IMPORT */}
-      <div className='p-2 flex space-x-2 items-center'>
-        <button className='main-btn' onClick={showModalImportHandler}>Import</button>
-        <Modal 
-          isOpen={showModalImport}
-          onRequestClose={closeModalImportHandler}
-          contentLabel="Contoh Modal"
-          overlayClassName="fixed inset-0 z-10 bg-gray-500 bg-opacity-75 flex items-center justify-center"
-          className="modal-content bg-white w-1/2 p-4 rounded shadow-md"
-          shouldCloseOnOverlayClick={false}
-        >
-          <div className='flex flex-col gap-1'>
-              <button className='main-btn' onClick={handleDownload}>Download</button>
-              <div class="flex items-center justify-center w-full">
-                  <label for="dropzone-file" class="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-800 border-dashed rounded-lg cursor-pointer bg-gray-800 dark:hover:bg-bray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600">
-                      <div class="flex flex-col items-center justify-center pt-5 pb-6 px-2">
-                          <svg class="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
-                              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/>
-                          </svg>
-                          <p class="mb-2 text-sm text-gray-500 dark:text-gray-400"><span class="font-semibold">Click to upload</span> or drag and drop</p>
-                          <p class="text-xs text-gray-500 dark:text-gray-400">Only XLSX (MAX. 5MB)</p>
-                      </div>
-                      <input className='' id="dropzone-file" type="file" accept=".csv, .xlsx" onChange={handleFileChange} />
-                  </label>
-              </div>
-              <button className='main-btn' onClick={handleFileUpload}>Upload</button>
+      <div className='bg-white rounded mt-6 '>
+          <div className='flex justify-center'>
+              <h1 className="text-2xl font-semibold mt-6">Select Action</h1>
           </div>
-          <button className='main-btn mt-2' onClick={closeModalImportHandler}>Close</button>
-        </Modal>
-      </div>
-
-      {/* EKSPORT */}
-      <div className='flex space-x-4'>
-        <div className='flex items-center py-8'>
-          <button className='main-btn' onClick={showExportHandler}>Export</button>
-        </div>
-        {showExport && (
-        <div className='flex flex-col space-y-1'>
-            <Popover open={openCsvPopover} handler={setOpenCsvPopover} placement='right' animate={{mount: { scale: 1, y: 0 }, unmount: { scale: 0, y: 25 },}}>
-            <div className='flex'>
-              <PopoverHandler {...triggersCsv}>
-                <button className='main-btn'>
-                  <FontAwesomeIcon icon={faFileCsv} size='xl' />
-                </button>
-              </PopoverHandler>
-              <PopoverContent {...triggersCsv} className='bg-[#efefef] z-50 shadow-none py-0.5 px-2 border-none'>
-                <div className='flex gap-2'>
-                <Button
-                    disabled={tableRef.current?.getPrePaginationRowModel().rows.length === 0}
-                    onClick={() => handleExportRowsCsv(tableRef.current?.getPrePaginationRowModel().rows)}
-                  >
-                    All Rows
-                  </Button>
-
-                  <Button
-                    disabled={tableRef.current?.getRowModel().rows.length === 0}
-                    onClick={() => handleExportRowsCsv(tableRef.current?.getRowModel().rows)}
-                  >
-                    Page Rows
-                  </Button>
-
-                  <Button
-                    disabled={
-                      !tableRef.current?.getIsSomeRowsSelected() && !tableRef.current?.getIsAllRowsSelected()
-                    }
-                    onClick={() => handleExportRowsCsv(tableRef.current?.getSelectedRowModel().rows)}
-                  >
-                    Selected Rows
-                  </Button>
-                </div>
-              </PopoverContent>
-            </div>
-            </Popover>
-            <Popover open={openPdfPopover} handler={setOpenPdfPopover} placement='right' animate={{mount: { scale: 1, y: 0 }, unmount: { scale: 0, y: 25 },}}>
-            <div className='flex'>
-              <PopoverHandler {...triggersPdf}>
-                <button className='main-btn'>
-                  <FontAwesomeIcon icon={faFilePdf} size='xl' />
-                </button>
-              </PopoverHandler>
-              <PopoverContent {...triggersPdf} className='bg-[#efefef] z-50 shadow-none py-0.5 border-none px-2'>
-                <div className='flex gap-2'>
-                <Button
-            disabled={tableRef.current?.getPrePaginationRowModel().rows.length === 0}
-            onClick={() => handleExportRowsPdf(tableRef.current?.getPrePaginationRowModel().rows)}
-          >
-            All Rows
-          </Button>
-
-          <Button
-            disabled={tableRef.current?.getRowModel().rows.length === 0}
-            onClick={() => handleExportRowsPdf(tableRef.current?.getRowModel().rows)}
-          >
-            Page Rows
-          </Button>
-
-          <Button
-            disabled={
-              !tableRef.current?.getIsSomeRowsSelected() && !tableRef.current?.getIsAllRowsSelected()
-            }
-            onClick={() => handleExportRowsPdf(tableRef.current?.getSelectedRowModel().rows)}
-          >
-            Selected Rows
-          </Button>
-                </div>
-              </PopoverContent>
-            </div>
-            </Popover>
-        </div>
-        )}
+          <Tabs value={activeTab}>
+              <TabsHeader className="rounded-none p-0 border-b border-blue-gray-50 mt-4 bg-white"
+                  indicatorProps={{
+                      className:
+                      "bg-transparent border-b-2 border-gray-900 shadow-none rounded-none",
+                  }}
+              >
+                  {data.map(({ label, value }) => (
+                      <Tab
+                      key={value}
+                      value={value}
+                      onClick={() => setActiveTab(value)}
+                      className={activeTab === value ? "text-gray-800" : "hover:text-gray-500"}
+                      >
+                      {label}
+                      </Tab>
+                  ))}
+              </TabsHeader>
+              <TabsBody>
+                  {data.map(({ value, content }) => (
+                      <TabPanel key={value} value={value}>
+                      {content}
+                      </TabPanel>
+                  ))}
+              </TabsBody>
+          </Tabs>
       </div>
 
       <div className='p-2'>

@@ -380,30 +380,29 @@ const ManageUser = () => {
                     <h1 className="text-2xl font-semibold mt-6">Select Menu</h1>
                 </div>
                 <Tabs value={activeTab}>
-                    <TabsHeader
-                    className="rounded-none p-0 border-b border-blue-gray-50 mt-4 bg-white"
-                    indicatorProps={{
-                        className:
-                        "bg-transparent border-b-2 border-gray-900 shadow-none rounded-none",
-                    }}
+                    <TabsHeader className="rounded-none p-0 border-b border-blue-gray-50 mt-4 bg-white"
+                        indicatorProps={{
+                            className:
+                            "bg-transparent border-b-2 border-gray-900 shadow-none rounded-none",
+                        }}
                     >
-                    {data.map(({ label, value }) => (
-                        <Tab
-                        key={value}
-                        value={value}
-                        onClick={() => setActiveTab(value)}
-                        className={activeTab === value ? "text-gray-800" : "hover:text-gray-500"}
-                        >
-                        {label}
-                        </Tab>
-                    ))}
+                        {data.map(({ label, value }) => (
+                            <Tab
+                            key={value}
+                            value={value}
+                            onClick={() => setActiveTab(value)}
+                            className={activeTab === value ? "text-gray-800" : "hover:text-gray-500"}
+                            >
+                            {label}
+                            </Tab>
+                        ))}
                     </TabsHeader>
                     <TabsBody>
-                    {data.map(({ value, content }) => (
-                        <TabPanel key={value} value={value}>
-                        {content}
-                        </TabPanel>
-                    ))}
+                        {data.map(({ value, content }) => (
+                            <TabPanel key={value} value={value}>
+                            {content}
+                            </TabPanel>
+                        ))}
                     </TabsBody>
                 </Tabs>
             </div>

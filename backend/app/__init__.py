@@ -19,7 +19,7 @@ def check_whitelist():
         return abort(403)
     
 
-# api.add_resource(UploadCsv, '/Test')
+api.add_resource(test, '/api/test')
 api.add_resource(Login, '/api/login')
 api.add_resource(Authentication, '/api/authentication')
 api.add_resource(AdminList, '/api/adminlist')

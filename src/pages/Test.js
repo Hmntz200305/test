@@ -1,49 +1,44 @@
-import React, { useEffect, useState } from 'react';
-import { useAuth } from '../AuthContext';
+import React, { useState, useEffect } from 'react';
+import { QrReader } from 'react-qr-reader';
+import 'webrtc-adapter';
 
-function CSVUploader() {
-  const [selectedFile, setSelectedFile] = useState(null);
-  const { setNotificationStatus, setNotification, setNotificationInfo, refreshAssetData } = useAuth();
+const QRScanner = () => {
+  const [result, setResult] = useState('');
 
   useEffect(() => {
-    refreshAssetData();
+    console.log('MediaDevices supported:', !!navigator.mediaDevices);
   }, []);
 
-  const handleFileChange = (event) => {
-    setSelectedFile(event.target.files[0]);
+  const handleScan = (data) => {
+    if (data) {
+      setResult(data);
+      // Kirim data ke API
+      sendDataToApi(data);
+    } else {
+      console.log('Tidak ada data terdeteksi.');
+    }
   };
 
-  const handleFileUpload = () => {
-    if (!selectedFile) {
-      setNotification('Pilih CSV');
-      setNotificationStatus(true);
-      setNotificationInfo('Error');
-      return;
-    }
+  const handleError = (error) => {
+    console.error(error);
+  };
 
-    const formData = new FormData();
-    formData.append('csvFile', selectedFile);
-
-    fetch('http://sipanda.online:5000/api/importcsv', {
-      method: 'POST',
-      body: formData,
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        console.log(data.message)
-        refreshAssetData();
-      })
-      .catch((error) => {
-        console.error('Error:', error);
-      });
+  const sendDataToApi = (data) => {
+    // Implementasi pengiriman data ke API
+    console.log('Data terbaca:', data);
   };
 
   return (
     <div>
-      <input id="dropzone-file" type="file" accept=".csv, .xls" onChange={handleFileChange} />
-      <button onClick={handleFileUpload}>Upload CSV</button>
+      <QrReader
+        delay={300}
+        onError={handleError}
+        onScan={handleScan}
+        style={{ width: '100%' }}
+      />
+      <p>Hasil: {result}</p>
     </div>
   );
-}
+};
 
-export default CSVUploader;
+export default QRScanner;

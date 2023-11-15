@@ -19,7 +19,7 @@ const Chat = () => {
 
   const showExportHandler = () => {
     setShowExport((prev) => !prev);
-  };
+  }
 
   const triggersCsv = {
     onMouseEnter: () => setOpenCsvPopover(true),
@@ -155,7 +155,7 @@ const handleExportRowsCsv = (rows) => {
         </div>
       </div>
       
-      <div className='flex space-x-4'>
+      <div className='flex space-x-2 p-2'>
         <div className='flex items-center py-8'>
           <button className='main-btn' onClick={showExportHandler}>Export</button>
         </div>
@@ -168,9 +168,9 @@ const handleExportRowsCsv = (rows) => {
                   <FontAwesomeIcon icon={faFileCsv} size='xl' />
                 </button>
               </PopoverHandler>
-              <PopoverContent {...triggersCsv} className='bg-[#efefef] z-50 shadow-none py-0.5 px-2 border-none'>
+              <PopoverContent {...triggersCsv} className='bg-indigo-500 z-50 shadow-none py-0.5 px-2 border-none'>
                 <div className='flex gap-2'>
-                <Button
+                  <Button
                     disabled={tableRef.current?.getPrePaginationRowModel().rows.length === 0}
                     onClick={() => handleExportRowsCsv(tableRef.current?.getPrePaginationRowModel().rows)}
                   >
@@ -203,30 +203,30 @@ const handleExportRowsCsv = (rows) => {
                   <FontAwesomeIcon icon={faFilePdf} size='xl' />
                 </button>
               </PopoverHandler>
-              <PopoverContent {...triggersPdf} className='bg-[#efefef] z-50 shadow-none py-0.5 border-none px-2'>
+              <PopoverContent {...triggersPdf} className='bg-lime-500 z-50 shadow-none py-0.5 border-none px-2'>
                 <div className='flex gap-2'>
-                <Button
-            disabled={tableRef.current?.getPrePaginationRowModel().rows.length === 0}
-            onClick={() => handleExportRowsPdf(tableRef.current?.getPrePaginationRowModel().rows)}
-          >
-            All Rows
-          </Button>
+                  <Button
+                    disabled={tableRef.current?.getPrePaginationRowModel().rows.length === 0}
+                    onClick={() => handleExportRowsPdf(tableRef.current?.getPrePaginationRowModel().rows)}
+                  >
+                    All Rows
+                  </Button>
 
-          <Button
-            disabled={tableRef.current?.getRowModel().rows.length === 0}
-            onClick={() => handleExportRowsPdf(tableRef.current?.getRowModel().rows)}
-          >
-            Page Rows
-          </Button>
+                  <Button
+                    disabled={tableRef.current?.getRowModel().rows.length === 0}
+                    onClick={() => handleExportRowsPdf(tableRef.current?.getRowModel().rows)}
+                  >
+                    Page Rows
+                  </Button>
 
-          <Button
-            disabled={
-              !tableRef.current?.getIsSomeRowsSelected() && !tableRef.current?.getIsAllRowsSelected()
-            }
-            onClick={() => handleExportRowsPdf(tableRef.current?.getSelectedRowModel().rows)}
-          >
-            Selected Rows
-          </Button>
+                  <Button
+                    disabled={
+                      !tableRef.current?.getIsSomeRowsSelected() && !tableRef.current?.getIsAllRowsSelected()
+                    }
+                    onClick={() => handleExportRowsPdf(tableRef.current?.getSelectedRowModel().rows)}
+                  >
+                    Selected Rows
+                  </Button>
                 </div>
               </PopoverContent>
             </div>
