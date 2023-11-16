@@ -1,108 +1,222 @@
 import React, { useState, useEffect, useRef } from 'react';
 import 'react-data-table-component-extensions/dist/index.css';
 import { faDownload, faFileCsv, faFileExport, faUpload, faFileImport, faPenToSquare, faPrint, faTrash, faFilePdf } from '@fortawesome/free-solid-svg-icons';
+import { faCircleDown} from '@fortawesome/free-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useAuth } from '../AuthContext';
 import { useDropzone } from 'react-dropzone';
 // 
 import { MaterialReactTable, createMRTColumnHelper, useMaterialReactTable, } from 'material-react-table';
-import { Box, Button, colors } from '@mui/material';
-import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import { mkConfig, generateCsv, download } from 'export-to-csv';
 import { jsPDF } from 'jspdf';
+import { Box, Button, colors } from '@mui/material';
 import autoTable from 'jspdf-autotable';
 import { DataGrid } from '@mui/x-data-grid';
 import Modal from 'react-modal';
-import { Popover, PopoverHandler, PopoverContent, } from "@material-tailwind/react";
 import { Tabs, TabsHeader, TabsBody, Tab, TabPanel, } from "@material-tailwind/react";
 Modal.setAppElement('#root');
 
 const ListAsset = () => {
 
   const ExportContent = () => {
-    <div className='flex space-x-10 p-2'>
-      <div className='flex items-center'>
-        <button className='main-btn' onClick={showExportHandler}>Export</button>
-      </div>
-      {showExport && (
-      <div className='flex flex-col space-y-1'>
-        <Popover open={openCsvPopover} handler={setOpenCsvPopover} placement='right' animate={{mount: { scale: 1, y: 0 }, unmount: { scale: 0, y: 25 },}}>
-          <div className='flex'>
-            <PopoverHandler {...triggersCsv}>
-              <button className='main-btn'>
-                <FontAwesomeIcon icon={faFileCsv} size='xl' />
-              </button>
-            </PopoverHandler>
-            <PopoverContent {...triggersCsv} className='bg-lime-500 space-x-12 z-50 shadow-none py-0.5 px-2 border-none'>
-              <div className='flex gap-10'>
-                <Button disabled={tableRef.current?.getPrePaginationRowModel().rows.length === 0} onClick={() => handleExportRowsCsv(tableRef.current?.getPrePaginationRowModel().rows)}>
-                  All Rows
-                </Button>
-                <Button disabled={tableRef.current?.getRowModel().rows.length === 0} onClick={() => handleExportRowsCsv(tableRef.current?.getRowModel().rows)}>
-                  Page Rows
-                </Button>
-                <Button disabled={!tableRef.current?.getIsSomeRowsSelected() && !tableRef.current?.getIsAllRowsSelected()} onClick={() => handleExportRowsCsv(tableRef.current?.getSelectedRowModel().rows)}>
-                  Selected Rows
-                </Button>
-              </div>
-            </PopoverContent>
+    
+    const handleExportRowsCsv = (rows) => {
+      const rowData = rows.map((row) => {
+        const dataRow = row.original;
+        return {
+          no: dataRow.no,
+          id: dataRow.id,
+          name: dataRow.name,
+          description: dataRow.description,
+          brand: dataRow.brand,
+          model: dataRow.model,
+          status: dataRow.status,
+          location: dataRow.location,
+          category: dataRow.category,
+          sn: dataRow.sn,
+        };
+      });
+    
+      const csvConfig = mkConfig({
+        fieldSeparator: ',',
+        decimalSeparator: '.',
+        useKeysAsHeaders: true,
+      });
+    
+      const csv = generateCsv(csvConfig)(rowData);
+      download(csvConfig)(csv);
+      };
+    
+      const handleExportRowsPdf = (rows) => {
+      const doc = new jsPDF();
+      const tableData = rows.map((row) => {
+        const dataRow = row.original;
+        return [dataRow.no, dataRow.id, dataRow.name, dataRow.description, dataRow.brand, dataRow.model, dataRow.status, dataRow.location, dataRow.category, dataRow.sn,];
+      });
+    
+      const tableHeaders = ['No', 'ID Asset', 'Name', 'Description', 'Brand', 'Model', 'Status', 'Location', 'Category', 'Serial Number'];
+    
+      autoTable(doc, {
+        head: [tableHeaders],
+        body: tableData,
+      });
+    
+      doc.save('mrt-pdf-example.pdf');
+    };
+
+    return (
+      <div className='flex flex-col p-2 gap-1'>
+        <p className='mb-4'>Silahkan pilih ingin mengexport dengan apa </p>
+        <div className='flex space-x-[1px]'>
+          <button className='main-btn cursor-default'>
+            <FontAwesomeIcon icon={faFileCsv} size='xl' />
+          </button>
+          <div className='flex flex-grow items-center border rounded border-gray-800'>
+            <Button 
+              className='flex-grow rounded py-[8px] text-black hover:bg-gray-800 hover:text-white'
+              disabled={tableRef.current?.getPrePaginationRowModel().rows.length === 0} 
+              onClick={() => handleExportRowsCsv(tableRef.current?.getPrePaginationRowModel().rows)}
+            >
+              Export All Rows
+            </Button>
+            <Button
+              className='flex-grow rounded py-[8px] text-black hover:bg-gray-800 hover:text-white' 
+              disabled={tableRef.current?.getRowModel().rows.length === 0}
+              onClick={() => handleExportRowsCsv(tableRef.current?.getRowModel().rows)}
+            >
+              Export Page Rows
+            </Button>
+            <Button 
+              className='flex-grow rounded py-[8px] text-black hover:bg-gray-800 hover:text-white' 
+              disabled={!tableRef.current?.getIsSomeRowsSelected() && !tableRef.current?.getIsAllRowsSelected()} 
+              onClick={() => handleExportRowsCsv(tableRef.current?.getSelectedRowModel().rows)}
+            >
+              Export Selected Rows
+            </Button>
           </div>
-        </Popover>
-        <Popover open={openPdfPopover} handler={setOpenPdfPopover} placement='right' animate={{mount: { scale: 1, y: 0 }, unmount: { scale: 0, y: 25 },}}>
-          <div className='flex'>
-            <PopoverHandler {...triggersPdf}>
-              <button className='main-btn'>
-                <FontAwesomeIcon icon={faFilePdf} size='xl' />
-              </button>
-            </PopoverHandler>
-            <PopoverContent {...triggersPdf} className='bg-lime-500 space-x-12 z-50 shadow-none py-0.5 border-none px-2'>
-              <div className='flex gap-10'>
-                <Button disabled={tableRef.current?.getPrePaginationRowModel().rows.length === 0} onClick={() => handleExportRowsPdf(tableRef.current?.getPrePaginationRowModel().rows)}>
-                  All Rows
-                </Button>
-                <Button disabled={tableRef.current?.getRowModel().rows.length === 0} onClick={() => handleExportRowsPdf(tableRef.current?.getRowModel().rows)}>
-                  Page Rows
-                </Button>
-                <Button disabled={!tableRef.current?.getIsSomeRowsSelected() && !tableRef.current?.getIsAllRowsSelected()} onClick={() => handleExportRowsPdf(tableRef.current?.getSelectedRowModel().rows)}>
-                  Selected Rows
-                </Button>
-              </div>
-            </PopoverContent>
+        </div>
+        <div className='flex space-x-[1px]'>
+          <button className='main-btn cursor-default'>
+            <FontAwesomeIcon icon={faFilePdf} size='xl' />
+          </button>
+          <div className='flex flex-grow items-center border rounded border-gray-800'>
+            <Button 
+              className='flex-grow rounded py-[8px] text-black hover:bg-gray-800 hover:text-white' 
+              disabled={tableRef.current?.getPrePaginationRowModel().rows.length === 0} 
+              onClick={() => handleExportRowsPdf(tableRef.current?.getPrePaginationRowModel().rows)}
+            >
+              Export All Rows
+            </Button>
+            <Button 
+              className='flex-grow rounded py-[8px] text-black hover:bg-gray-800 hover:text-white' 
+              disabled={tableRef.current?.getRowModel().rows.length === 0} 
+              onClick={() => handleExportRowsPdf(tableRef.current?.getRowModel().rows)}
+            >
+              Export Page Rows
+            </Button>
+            <Button 
+            className='flex-grow items-center rounded py-[8px] text-black hover:bg-gray-800 hover:text-white' 
+            disabled={!tableRef.current?.getIsSomeRowsSelected() && !tableRef.current?.getIsAllRowsSelected()} 
+            onClick={() => handleExportRowsPdf(tableRef.current?.getSelectedRowModel().rows)}
+            >
+              Export Selected Rows
+            </Button>
           </div>
-        </Popover>
+        </div>
       </div>
-      )}
-    </div>
+    )
   }
 
   const ImportContent = () => {
-    <div className='p-2 flex space-x-10'>
-      <div className='flex items-center'>
-        <button className='main-btn' onClick={showImportHandler}>Import</button>
-      </div>
-      {showImport && (
-        <div className='flex flex-col gap-1 flex-grow break-all'>
-          <p className=''>Silahkan download terlebih dahulu template untuk importnya:
-            <span className='font-semibold underline cursor-pointer' onClick={handleDownload}>Download</span>
-          </p>
-          <div className="flex items-center">
-            <label for="dropzone-file" className="flex flex-col flex-grow items-center justify-center h-32 w-full border-2 border-gray-800 border-dashed rounded-lg cursor-pointer">
-              <div className="flex flex-col items-center justify-center pt-5 pb-6 px-2">
-                <svg className="w-8 h-8 mb-4 text-gray-800" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
-                  <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/>
-                </svg>
-                <p className="mb-2 text-sm text-gray-800"><span className="font-semibold">Click to upload</span> or drag and drop</p>
-                <p className="text-xs text-gray-800">Only XLSX (MAX. 10MB)</p>
-              </div>
-              <input className='hidden' id="dropzone-file" type="file" accept=".csv, .xlsx" onChange={handleFileChange} />
-            </label>
-          </div>
-          <button className='main-btn' onClick={handleFileUpload}>Upload</button>
-        </div>
-      )}
-    </div>
-  }
+    const [selectedFile, setSelectedFile] = useState(null);
+    const [selectedFileName, setSelectedFileName] = useState('');
+    const [uploadedFile, setUploadedFile] = useState(null);
 
+    const handleFileChange = (e) => {
+      const file = e.target.files[0];
+      console.log('Selected File:', file);
+      setSelectedFile(file);
+      setSelectedFileName(file ? file.name : '');
+    };
+
+    const handleFileUpload = async () => {
+      if (!selectedFile) {
+        setNotification('Pilih File');
+        setNotificationStatus(true);
+        setNotificationInfo('Error');
+        return;
+      }
+    
+      const formData = new FormData();
+      formData.append('csvFile', selectedFile);
+    
+      try {
+        const response = await fetch('/api/importcsv', {
+          method: 'POST',
+          body: formData,
+        });
+    
+        if (response.ok) {
+          const data = await response.json();
+          refreshAssetData();
+          setNotification(data.message);
+          setNotificationStatus(true);
+        } else {
+          const data = await response.json();
+          setNotification(data.message);
+          setNotificationStatus(true);
+          setNotificationInfo('Error');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    };
+
+    const handleUpload = (acceptedFiles) => {
+      const file = acceptedFiles[0];
+      setUploadedFile(file);
+    };
+    const { getRootProps, getInputProps, isDragActive } = useDropzone({
+      onDrop: handleUpload,
+      multiple: false, // Hanya izinkan unggah satu file
+      accept: '.csv, .xlsx',
+    });
+
+
+    const handleDownload = () => {
+      const fileURL = '/static/template/MyReport.csv'; // Gantilah dengan URL file yang sesuai
+      const a = document.createElement('a');
+      a.href = fileURL;
+      a.download = 'MyReport.csv'; // Gantilah dengan nama file yang sesuai
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    };
+
+    return (
+      <div className='p-2 flex'>
+          <div className='flex flex-col gap-1 flex-grow break-all'>
+            <p className='mb-4'>Silahkan download terlebih dahulu template untuk importnya:
+              <span className='font-semibold underline cursor-pointer ml-2' onClick={handleDownload}>Download</span>
+            </p>
+            <div className="flex items-center">
+              <label htmlFor="dropzone-file" {...getRootProps()} className="flex flex-col flex-grow items-center justify-center h-36 w-full border-2 border-gray-800 border-dashed rounded-lg cursor-pointer">
+                <div className="flex flex-col items-center justify-center pt-5 pb-6 px-2">
+                  <svg className="w-8 h-8 mb-4 text-gray-800" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/>
+                  </svg>
+                  <p className="mb-2 text-sm text-gray-800"><span className="font-semibold">Click to upload</span> or drag and drop</p>
+                  <p className="text-xs text-gray-800">Only CSV/XLSX (MAX. 10MB)</p>
+                  <p className='text-gray text-sm'>Selected File: <span className='underline'>{selectedFileName}</span></p>
+                </div>
+                <input className='hidden' {...getInputProps()} id="dropzone-file" type="file" accept=".csv, .xlsx" onChange={handleFileChange} />
+              </label>
+            </div>
+            <button className='main-btn' onClick={handleFileUpload}>Upload</button>
+          </div>
+      </div>
+    )
+  }
 
   const { token, Role, DataListAsset, refreshAssetData, refreshStatusList, StatusOptions, LocationOptions, refreshLocationList, refreshCategoryList, CategoryOptions, setNotification, setNotificationInfo, setNotificationStatus } = useAuth();
   const [showEdit, setShowEdit] = useState(false);
@@ -110,16 +224,7 @@ const ListAsset = () => {
   const [selectedAssetId, setSelectedAssetId] = useState(null);
   const [selectedAsset, setSelectedAsset] = useState(null);
   const [fileInput, setFileInput] = useState(null);
-  const [selectedFile, setSelectedFile] = useState(null);
-  const [showExport, setShowExport] = useState(false);
-  const [showImport, setShowImport] = useState(false);
-  const [openCsvPopover, setOpenCsvPopover] = useState(false);
-  const [openPdfPopover, setOpenPdfPopover] = useState(false);
   const tableRef = useRef(null)
-
-  const handleFileChange = (e) => {
-    setSelectedFile(e.target.files[0]);
-  };
 
   const showEditHandler = (row) => {
     setSelectedAsset(row);
@@ -141,23 +246,6 @@ const ListAsset = () => {
   const hideDeleteHandler = () => {
     setShowDelete(false);
   };
-
-  const showExportHandler = () => {
-    setShowExport((prev) => !prev);
-  };
-
-  const showImportHandler = () => {
-    setShowImport((prev) => !prev);
-  };
-
-  const triggersCsv = {
-    onMouseEnter: () => setOpenCsvPopover(true),
-    onMouseLeave: () => setOpenCsvPopover(false),
-  };
-  const triggersPdf = {
-    onMouseEnter: () => setOpenPdfPopover(true),
-    onMouseLeave: () => setOpenPdfPopover(false),
-  };
   
   useEffect(() => {
     refreshAssetData();
@@ -166,41 +254,6 @@ const ListAsset = () => {
     refreshCategoryList();
     // eslint-disable-next-line
   }, []);
-
-  const handleFileUpload = async () => {
-    if (!selectedFile) {
-      setNotification('Pilih File');
-      setNotificationStatus(true);
-      setNotificationInfo('Error');
-      return;
-    }
-  
-    const formData = new FormData();
-    
-    formData.append('csvFile', selectedFile);
-  
-    try {
-      const response = await fetch('http://sipanda.online:5000/api/importcsv', {
-        method: 'POST',
-        body: formData,
-      });
-  
-      if (response.ok) {
-        const data = await response.json();
-        refreshAssetData();
-        setNotification(data.message);
-        setNotificationStatus(true);
-      } else {
-        const data = await response.json();
-        setNotification(data.message);
-        setNotificationStatus(true);
-        setNotificationInfo('Error');
-      }
-    } catch (error) {
-      console.error('Error:', error);
-    }
-  };
-  
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -234,7 +287,7 @@ const ListAsset = () => {
     }
 
     try {
-      const response = await fetch(`http://sipanda.online:5000/api/edit-asset/${selectedAsset.no}`, {
+      const response = await fetch(`http://103.148.77.238/api/edit-asset/${selectedAsset.no}`, {
         method: 'PUT',
         headers: {
           Authorization: token,
@@ -261,7 +314,7 @@ const ListAsset = () => {
     
   const deleteAsset = async (id) => {
     try {
-      const response = await fetch(`http://sipanda.online:5000/api/delete-asset/${id}`, {
+      const response = await fetch(`http://103.148.77.238/api/delete-asset/${id}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
@@ -285,36 +338,6 @@ const ListAsset = () => {
     }
   };
 
-  const [uploadedFile, setUploadedFile] = useState(null);
-  const handleUpload = (acceptedFiles) => {
-    // Mengambil file yang diunggah dan mengatur state uploadedFile
-    const file = acceptedFiles[0];
-    setUploadedFile(file);
-  };
-  const { getRootProps, getInputProps } = useDropzone({
-    onDrop: handleUpload,
-    multiple: false, // Hanya izinkan unggah satu file
-    accept: '.csv, .xlsx',
-  });
-
-
-  const handleDownload = () => {
-    // Membuat URL sumber file yang akan diunduh
-    const fileURL = 'http://sipanda.online:5000/static/template/MyReport.csv'; // Gantilah dengan URL file yang sesuai
-    
-    // Membuat anchor element
-    const a = document.createElement('a');
-    a.href = fileURL;
-    a.download = 'MyReport.csv'; // Gantilah dengan nama file yang sesuai
-    document.body.appendChild(a);
-    
-    // Mengklik tombol secara otomatis untuk memulai unduhan
-    a.click();
-    
-    // Menghapus anchor element dari dokumen
-    document.body.removeChild(a);
-  };
-
   const [activeTab, setActiveTab] = React.useState("import");
     const data = [
     {
@@ -327,125 +350,78 @@ const ListAsset = () => {
       value: "export",
       content: <ExportContent />,
     },
-    ];
+  ];
 
-  // NEW TABLE
-const columnHelper = createMRTColumnHelper();
-const columnsNew = [
-  columnHelper.accessor('no', {
-    header: 'No',
-    size: 40,
-  }),
-  columnHelper.accessor('id', {
-    header: 'ID Asset',
-    size: 120,
-  }),
-  columnHelper.accessor('name', {
-    header: 'Name',
-    size: 120,
-  }),
-  columnHelper.accessor('description', {
-    header: 'Description',
-    size: 300,
-  }),
-  columnHelper.accessor('brand', {
-    header: 'Brand',
-  }),
-  columnHelper.accessor('model', {
-    header: 'Model',
-    size: 220,
-  }),
-  columnHelper.accessor('status', {
-    header: 'Status',
-    size: 220,
-  }),
-  columnHelper.accessor('location', {
-    header: 'Location',
-    size: 220,
-  }),
-  columnHelper.accessor('category', {
-    header: 'Category',
-    size: 220,
-  }),
-  columnHelper.accessor('sn', {
-    header: 'SN',
-    size: 220,
-  }),
-  columnHelper.accessor('image_path', {
-    header: 'Photo',
-    size: 200,
-    enableSorting: false,
-    enableColumnFilter: false,
-    Cell: ({ row }) => (
-      <img src={row.original.image_path} alt="Asset" style={{ width: '70px', height: 'auto' }} />
-    ),
-  }),
-  columnHelper.accessor('action', {
-    header: Role === 2 ? 'Action' : '',
-    omit: Role !== 2,
-    size: 120,
-    enableSorting: false,
-    enableColumnFilter: false,
-    Cell: ({row}) => (
-      Role === 2 ? (
-        <div className='text-white'>
-          <button className='bg-green-500 p-2 rounded-lg hover:bg-green-700 m-0.5' onClick={() => showEditHandler(row.original)}>
-            <FontAwesomeIcon icon={faPenToSquare} />
-          </button>
-          <button className='bg-red-500 p-2 rounded-lg hover:bg-red-700 m-0.5' onClick={() => showDeleteHandler(row.original.no)}>
-            <FontAwesomeIcon icon={faTrash} />
-          </button>
-        </div>
-      ) : null
+  const columnHelper = createMRTColumnHelper();
+  const columnsNew = [
+    columnHelper.accessor('no', {
+      header: 'No',
+      size: 40,
+    }),
+    columnHelper.accessor('id', {
+      header: 'ID Asset',
+      size: 120,
+    }),
+    columnHelper.accessor('name', {
+      header: 'Name',
+      size: 120,
+    }),
+    columnHelper.accessor('description', {
+      header: 'Description',
+      size: 300,
+    }),
+    columnHelper.accessor('brand', {
+      header: 'Brand',
+    }),
+    columnHelper.accessor('model', {
+      header: 'Model',
+      size: 220,
+    }),
+    columnHelper.accessor('status', {
+      header: 'Status',
+      size: 220,
+    }),
+    columnHelper.accessor('location', {
+      header: 'Location',
+      size: 220,
+    }),
+    columnHelper.accessor('category', {
+      header: 'Category',
+      size: 220,
+    }),
+    columnHelper.accessor('sn', {
+      header: 'SN',
+      size: 220,
+    }),
+    columnHelper.accessor('image_path', {
+      header: 'Photo',
+      size: 200,
+      enableSorting: false,
+      enableColumnFilter: false,
+      Cell: ({ row }) => (
+        <img src={row.original.image_path} alt="Asset" style={{ width: '70px', height: 'auto' }} />
       ),
     }),
-];
-
-const handleExportRowsCsv = (rows) => {
-  const rowData = rows.map((row) => {
-    const dataRow = row.original;
-    return {
-      no: dataRow.no,
-      id: dataRow.id,
-      name: dataRow.name,
-      description: dataRow.description,
-      brand: dataRow.brand,
-      model: dataRow.model,
-      status: dataRow.status,
-      location: dataRow.location,
-      category: dataRow.category,
-      sn: dataRow.sn,
-    };
-  });
-
-  const csvConfig = mkConfig({
-    fieldSeparator: ',',
-    decimalSeparator: '.',
-    useKeysAsHeaders: true,
-  });
-
-  const csv = generateCsv(csvConfig)(rowData);
-  download(csvConfig)(csv);
-};
-
-
-  const handleExportRowsPdf = (rows) => {
-  const doc = new jsPDF();
-  const tableData = rows.map((row) => {
-    const dataRow = row.original;
-    return [dataRow.no, dataRow.id, dataRow.name, dataRow.description, dataRow.brand, dataRow.model, dataRow.status, dataRow.location, dataRow.category, dataRow.sn,];
-  });
-
-  const tableHeaders = ['No', 'ID Asset', 'Name', 'Description', 'Brand', 'Model', 'Status', 'Location', 'Category', 'Serial Number'];
-
-  autoTable(doc, {
-    head: [tableHeaders],
-    body: tableData,
-  });
-
-  doc.save('mrt-pdf-example.pdf');
-};
-  // END NEW TABLE`
+    columnHelper.accessor('action', {
+      header: Role === 2 ? 'Action' : '',
+      omit: Role !== 2,
+      size: 120,
+      enableSorting: false,
+      enableColumnFilter: false,
+      Cell: ({row}) => (
+        Role === 2 ? (
+          <div className='text-white'>
+            <button className='bg-green-500 p-2 rounded-lg hover:bg-green-700 m-0.5' onClick={() => showEditHandler(row.original)}>
+              <FontAwesomeIcon icon={faPenToSquare} />
+            </button>
+            <button className='bg-red-500 p-2 rounded-lg hover:bg-red-700 m-0.5' onClick={() => showDeleteHandler(row.original.no)}>
+              <FontAwesomeIcon icon={faTrash} />
+            </button>
+          </div>
+        ) : null
+        ),
+      }),
+  ];
 
   return (
     <>
@@ -455,7 +431,39 @@ const handleExportRowsCsv = (rows) => {
         </div>
       </div>
 
-
+      <div className='p-2'>
+        <div className='bg-white rounded'>
+            <div className='flex justify-center'>
+                <h1 className="text-2xl font-semibold mt-6">Select Action</h1>
+            </div>
+            <Tabs value={activeTab} className='p-2'>
+                <TabsHeader className="rounded-none p-0 border-b border-blue-gray-50 mt-4 bg-white"
+                    indicatorProps={{
+                        className:
+                        "bg-transparent border-b-2 border-gray-900 shadow-none rounded-none",
+                    }}
+                >
+                    {data.map(({ label, value }) => (
+                        <Tab
+                        key={value}
+                        value={value}
+                        onClick={() => setActiveTab(value)}
+                        className={activeTab === value ? "text-gray-800" : "hover:text-gray-500"}
+                        >
+                        {label}
+                        </Tab>
+                    ))}
+                </TabsHeader>
+                <TabsBody>
+                    {data.map(({ value, content }) => (
+                        <TabPanel key={value} value={value}>
+                        {content}
+                        </TabPanel>
+                    ))}
+                </TabsBody>
+            </Tabs>
+        </div>
+      </div>
 
       {showEdit && (
         <div className='p-2'>
@@ -598,7 +606,7 @@ const handleExportRowsCsv = (rows) => {
                 </div>
             </div>
         </div>
-        )}
+      )}
 
       {showDelete && (
         <div className='p-2'>
@@ -619,40 +627,8 @@ const handleExportRowsCsv = (rows) => {
         </div>
       )}
 
-      <div className='bg-white rounded mt-6 '>
-          <div className='flex justify-center'>
-              <h1 className="text-2xl font-semibold mt-6">Select Action</h1>
-          </div>
-          <Tabs value={activeTab}>
-              <TabsHeader className="rounded-none p-0 border-b border-blue-gray-50 mt-4 bg-white"
-                  indicatorProps={{
-                      className:
-                      "bg-transparent border-b-2 border-gray-900 shadow-none rounded-none",
-                  }}
-              >
-                  {data.map(({ label, value }) => (
-                      <Tab
-                      key={value}
-                      value={value}
-                      onClick={() => setActiveTab(value)}
-                      className={activeTab === value ? "text-gray-800" : "hover:text-gray-500"}
-                      >
-                      {label}
-                      </Tab>
-                  ))}
-              </TabsHeader>
-              <TabsBody>
-                  {data.map(({ value, content }) => (
-                      <TabPanel key={value} value={value}>
-                      {content}
-                      </TabPanel>
-                  ))}
-              </TabsBody>
-          </Tabs>
-      </div>
-
       <div className='p-2'>
-        <div className='mt-10'>
+        <div className='mt-5'>
           <MaterialReactTable
               columns={columnsNew}
               data={DataListAsset}

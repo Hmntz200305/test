@@ -64,7 +64,7 @@ const Return = () => {
         try {
           setIsLoading(true); // Atur status loading menjadi true
       
-          const response = await fetch(`http://sipanda.online:5000/api/returnsloan/${selectedLoanID}`, {
+          const response = await fetch(`https://sipanda.online:8443/api/returnsloan/${selectedLoanID}`, {
             method: "POST",
             headers: {
               Authorization: token,

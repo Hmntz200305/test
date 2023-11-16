@@ -8,7 +8,6 @@ class HistoryTicket(Resource):
         # Ticket Checking
         lmd.execute('SELECT * from ticket')
         tickets = lmd.fetchall()
-        print(tickets)
         
         ticket_list = []
         for row, ticket_data in enumerate(tickets, start=1):

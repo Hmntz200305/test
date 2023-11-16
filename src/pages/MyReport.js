@@ -75,7 +75,7 @@ const MyReport = () => {
           setIsLoading(true);
     
           const response = await fetch(
-            `http://sipanda.online:5000/api/myreportdelete/${selectedMyReportID}`,
+            `https://sipanda.online:8443/api/myreportdelete/${selectedMyReportID}`,
             {
               method: 'PUT',
               headers: {

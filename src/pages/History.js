@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import DataTable from 'react-data-table-component';
 import DataTableExtensions from 'react-data-table-component-extensions';
+import { faDownload, faFileCsv, faFileExport, faUpload, faFileImport, faPenToSquare, faPrint, faTrash, faFilePdf } from '@fortawesome/free-solid-svg-icons';
 import 'react-data-table-component-extensions/dist/index.css';
 import Modal from 'react-modal';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -9,175 +10,267 @@ import { useAuth } from '../AuthContext';
 import { MaterialReactTable, createMRTColumnHelper, useMaterialReactTable, } from 'material-react-table';
 import { mkConfig, generateCsv, download } from 'export-to-csv';
 import { jsPDF } from 'jspdf';
+import { Button} from '@mui/material';
 import autoTable from 'jspdf-autotable';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
-import { Box, Button, colors } from '@mui/material';
+import { Box, button, colors } from '@mui/material';
 import { Tabs, TabsHeader, TabsBody, Tab, TabPanel, } from "@material-tailwind/react";
 Modal.setAppElement('#root');
 
 const History = () => {
 
-    const LogContent = () => (
-        <div className='p-0'>
-            <div className='mt-4'>
-                <MaterialReactTable 
-                    columns={columnsNew}
-                    data={HistoryTicket}
-                    enableRowSelection={true}
-                    enableClickToCopy={false}
-                    columnFilterDisplayMode= 'popover'
-                    paginationDisplayMode= 'pages'
-                    positionToolbarAlertBanner= 'bottom'
-                    renderTopToolbarCustomActions= {({ table }) => ( 
-                        <div className='flex gap-1 flex-wrap p-2'>
-                            <div className='bg-blue-200'>
-                                <Button
-                                    disabled={table.getPrePaginationRowModel().rows.length === 0}
-                                    onClick={() =>
-                                        handleExportRowsCsvTicket(table.getPrePaginationRowModel().rows)
-                                    }
-                                    startIcon={<FileDownloadIcon />}
-                                    >
-                                    Export All Rows CSV
-                                </Button>
-            
-                                <Button
-                                    disabled={table.getRowModel().rows.length === 0}
-                                    onClick={() => handleExportRowsCsvTicket(table.getRowModel().rows)}
-                                    startIcon={<FileDownloadIcon />}
-                                    >
-                                    Export Page Rows CSV
-                                </Button>
-            
-                                <Button
-                                    disabled={
-                                        !table.getIsSomeRowsSelected() && !table.getIsAllRowsSelected()
-                                    }
-                                    onClick={() => handleExportRowsCsvTicket(table.getSelectedRowModel().rows)}
-                                    startIcon={<FileDownloadIcon />}
-                                    >
-                                    Export Selected Rows CSV
-                                </Button>
-                            </div>
-                            
-                            <div className='bg-red-200'>
-                                <Button
-                                    disabled={table.getPrePaginationRowModel().rows.length === 0}
-                                    onClick={() =>
-                                        handleExportRowsPdfTicket(table.getPrePaginationRowModel().rows)
-                                    }
-                                    startIcon={<FileDownloadIcon />}
-                                    >
-                                    Export All Rows PDF
-                                </Button>
-            
-                                <Button
-                                    disabled={table.getRowModel().rows.length === 0}
-                                    onClick={() => handleExportRowsPdfTicket(table.getRowModel().rows)}
-                                    startIcon={<FileDownloadIcon />}
-                                    >
-                                    Export Page Rows PDF
-                                </Button>
-            
-                                <Button
-                                    disabled={
-                                        !table.getIsSomeRowsSelected() && !table.getIsAllRowsSelected()
-                                    }
-                                    onClick={() => handleExportRowsPdfTicket(table.getSelectedRowModel().rows)}
-                                    startIcon={<FileDownloadIcon />}
-                                    >
-                                    Export Selected Rows PDF
-                                </Button>
-                            </div>
-                        </div>
-                    )}
-                />
+    const LogContent = () => {
+
+        const handleExportCsvLog = (rows) => {
+            const rowData = rows.map((row) => {
+              const dataRow = row.original;
+              return {
+                no: dataRow.no,
+                id: dataRow.idticket,
+                assset: dataRow.asset,
+                name: dataRow.name,
+                leasedatae: dataRow.leasedate,
+                returndate: dataRow.returndate,
+                location: dataRow.location,
+                note: dataRow.note,
+                email: dataRow.email,
+                status: dataRow.status,
+                admin1: dataRow.admin1,
+                admin2: dataRow.admin2,
+              };
+            });
+          
+            const csvConfig = mkConfig({
+              fieldSeparator: ',',
+              decimalSeparator: '.',
+              useKeysAsHeaders: true,
+            });
+          
+            const csv = generateCsv(csvConfig)(rowData);
+            download(csvConfig)(csv);
+          };
+          
+            const handleExportPdfLog = (rows) => {
+            const doc = new jsPDF();
+            const tableData = rows.map((row) => {
+              const dataRow = row.original;
+              return [dataRow.no, dataRow.idticket, dataRow.asset, dataRow.name, dataRow.leasedate, dataRow.returndate, dataRow.location, dataRow.note, dataRow.email, dataRow.status, dataRow.admin1, dataRow.admin2];
+            });
+          
+            const tableHeaders = ['No', 'ID Ticket', 'ID Asset', 'Name', 'Lease Date', 'Return Date', 'Location', 'Note', 'Email', 'Status', 'Admin #1', 'Admin #2'];
+          
+            autoTable(doc, {
+              head: [tableHeaders],
+              body: tableData,
+            });
+          
+            doc.save('mrt-pdf-example.pdf');
+        };
+
+        return (
+            <div className='p-0'>
+                <p className='mb-4'>Silahkan pilih ingin mengexport dengan apa </p>
+                <div className='flex space-x-[1px]'>
+                    <button className='main-btn cursor-default'>
+                        <FontAwesomeIcon icon={faFileCsv} size='xl' />
+                    </button>
+                    <div className='flex flex-grow items-center border rounded border-gray-800'>
+                        <Button 
+                            className='flex-grow rounded py-[8px] text-black hover:bg-gray-800 hover:text-white'
+                            disabled={tableRef.current?.getPrePaginationRowModel().rows.length === 0} 
+                            onClick={() => handleExportCsvLog(tableRef.current?.getPrePaginationRowModel().rows)}
+                        >
+                        Export All Rows
+                        </Button>
+                        <Button
+                            className='flex-grow rounded py-[8px] text-black hover:bg-gray-800 hover:text-white' 
+                            disabled={tableRef.current?.getRowModel().rows.length === 0}
+                            onClick={() => handleExportCsvLog(tableRef.current?.getRowModel().rows)}
+                        >
+                        Export Page Rows
+                        </Button>
+                        <Button 
+                            className='flex-grow rounded py-[8px] text-black hover:bg-gray-800 hover:text-white' 
+                            disabled={!tableRef.current?.getIsSomeRowsSelected() && !tableRef.current?.getIsAllRowsSelected()} 
+                            onClick={() => handleExportCsvLog(tableRef.current?.getSelectedRowModel().rows)}
+                        >
+                        Export Selected Rows
+                        </Button>
+                    </div>
+                </div>
+                <div className='flex space-x-[1px]'>
+                    <button className='main-btn cursor-default'>
+                        <FontAwesomeIcon icon={faFilePdf} size='xl' />
+                    </button>
+                    <div className='flex flex-grow items-center border rounded border-gray-800'>
+                        <Button 
+                            className='flex-grow rounded py-[8px] text-black hover:bg-gray-800 hover:text-white' 
+                            disabled={tableRef.current?.getPrePaginationRowModel().rows.length === 0} 
+                            onClick={() => handleExportPdfLog(tableRef.current?.getPrePaginationRowModel().rows)}
+                        >
+                        Export All Rows
+                        </Button>
+                        <Button 
+                            className='flex-grow rounded py-[8px] text-black hover:bg-gray-800 hover:text-white' 
+                            disabled={tableRef.current?.getRowModel().rows.length === 0} 
+                            onClick={() => handleExportPdfLog(tableRef.current?.getRowModel().rows)}
+                        >
+                        Export Page Rows
+                        </Button>
+                        <Button 
+                            className='flex-grow items-center rounded py-[8px] text-black hover:bg-gray-800 hover:text-white' 
+                            disabled={!tableRef.current?.getIsSomeRowsSelected() && !tableRef.current?.getIsAllRowsSelected()} 
+                            onClick={() => handleExportPdfLog(tableRef.current?.getSelectedRowModel().rows)}
+                        >
+                        Export Selected Rows
+                        </Button>
+                    </div>
+                </div>
+                <div className='mt-4'>
+                    <MaterialReactTable 
+                        columns={columnsNew}
+                        data={HistoryTicket}
+                        enableRowSelection={true}
+                        enableClickToCopy={false}
+                        columnFilterDisplayMode= 'popover'
+                        paginationDisplayMode= 'pages'
+                        positionToolbarAlertBanner= 'bottom'
+                        renderTopToolbarCustomActions= {({ table }) => { 
+                            tableRef.current = table;
+                            return null; 
+                        }}
+                    />
+                </div>
             </div>
-        </div>
-    );
-    const PeminjamanContent = () => (
-        <div className='p-0'>
-            <div className='mt-4'>
-                <MaterialReactTable 
-                    columns={Peminjaman}
-                    data={HistoryLoanData}
-                    enableRowSelection={true}
-                    enableClickToCopy={false}
-                    columnFilterDisplayMode= 'popover'
-                    paginationDisplayMode= 'pages'
-                    positionToolbarAlertBanner= 'bottom'
-                    renderTopToolbarCustomActions= {({ table }) => ( 
-                        <div className='flex gap-1 flex-wrap p-2'>
-                            <div className='bg-blue-200'>
-                                <Button
-                                    disabled={table.getPrePaginationRowModel().rows.length === 0}
-                                    onClick={() =>
-                                        handleExportRowsCsvPeminjaman(table.getPrePaginationRowModel().rows)
-                                    }
-                                    startIcon={<FileDownloadIcon />}
-                                    >
-                                    Export All Rows CSV
-                                </Button>
-            
-                                <Button
-                                    disabled={table.getRowModel().rows.length === 0}
-                                    onClick={() => handleExportRowsCsvPeminjaman(table.getRowModel().rows)}
-                                    startIcon={<FileDownloadIcon />}
-                                    >
-                                    Export Page Rows CSV
-                                </Button>
-            
-                                <Button
-                                    disabled={
-                                        !table.getIsSomeRowsSelected() && !table.getIsAllRowsSelected()
-                                    }
-                                    onClick={() => handleExportRowsCsvPeminjaman(table.getSelectedRowModel().rows)}
-                                    startIcon={<FileDownloadIcon />}
-                                    >
-                                    Export Selected Rows CSV
-                                </Button>
-                            </div>
-                            
-                            <div className='bg-red-200'>
-                                <Button
-                                    disabled={table.getPrePaginationRowModel().rows.length === 0}
-                                    onClick={() =>
-                                        handleExportRowsPdfPeminjaman(table.getPrePaginationRowModel().rows)
-                                    }
-                                    startIcon={<FileDownloadIcon />}
-                                    >
-                                    Export All Rows PDF
-                                </Button>
-            
-                                <Button
-                                    disabled={table.getRowModel().rows.length === 0}
-                                    onClick={() => handleExportRowsPdfPeminjaman(table.getRowModel().rows)}
-                                    startIcon={<FileDownloadIcon />}
-                                    >
-                                    Export Page Rows PDF
-                                </Button>
-            
-                                <Button
-                                    disabled={
-                                        !table.getIsSomeRowsSelected() && !table.getIsAllRowsSelected()
-                                    }
-                                    onClick={() => handleExportRowsPdfPeminjaman(table.getSelectedRowModel().rows)}
-                                    startIcon={<FileDownloadIcon />}
-                                    >
-                                    Export Selected Rows PDF
-                                </Button>
-                            </div>
-                        </div>
-                    )}
-                />
+        )
+    };
+    const PeminjamanContent = () => {
+
+        const handleExportCsvPeminjaman = (rows) => {
+            const rowData = rows.map((row) => {
+              const dataRow = row.original;
+              return {
+                no: dataRow.no,
+                id: dataRow.idticket,
+                assset: dataRow.asset,
+                assetname: dataRow.assetname,
+                leasedatae: dataRow.leasedate,
+                returndate: dataRow.returndate,
+                name: dataRow.name,
+                email: dataRow.email,
+                status: dataRow.status,
+              };
+            });
+          
+            const csvConfig = mkConfig({
+              fieldSeparator: ',',
+              decimalSeparator: '.',
+              useKeysAsHeaders: true,
+            });
+          
+            const csv = generateCsv(csvConfig)(rowData);
+            download(csvConfig)(csv);
+          };
+          
+            const handleExportPdfPeminjaman = (rows) => {
+            const doc = new jsPDF();
+            const tableData = rows.map((row) => {
+              const dataRow = row.original;
+              return [dataRow.no, dataRow.idticket, dataRow.asset, dataRow.assetname, dataRow.leasedate, dataRow.returndate, dataRow.name, dataRow.email, dataRow.status];
+            });
+          
+            const tableHeaders = ['No', 'ID Ticket', 'ID Asset', 'Name', 'Lease Date', 'Return Date', 'Username', 'Email', 'Status'];
+          
+            autoTable(doc, {
+              head: [tableHeaders],
+              body: tableData,
+            });
+          
+            doc.save('mrt-pdf-example.pdf');
+        };
+
+        return (
+            <div className='p-0'>
+                <p className='mb-4'>Silahkan pilih ingin mengexport dengan apa </p>
+                <div className='flex space-x-[1px]'>
+                    <button className='main-btn cursor-default'>
+                        <FontAwesomeIcon icon={faFileCsv} size='xl' />
+                    </button>
+                    <div className='flex flex-grow items-center border rounded border-gray-800'>
+                        <Button 
+                            className='flex-grow rounded py-[8px] text-black hover:bg-gray-800 hover:text-white'
+                            disabled={tableRef.current?.getPrePaginationRowModel().rows.length === 0} 
+                            onClick={() => handleExportCsvPeminjaman(tableRef.current?.getPrePaginationRowModel().rows)}
+                        >
+                        Export All Rows
+                        </Button>
+                        <Button
+                            className='flex-grow rounded py-[8px] text-black hover:bg-gray-800 hover:text-white' 
+                            disabled={tableRef.current?.getRowModel().rows.length === 0}
+                            onClick={() => handleExportCsvPeminjaman(tableRef.current?.getRowModel().rows)}
+                        >
+                        Export Page Rows
+                        </Button>
+                        <Button 
+                            className='flex-grow rounded py-[8px] text-black hover:bg-gray-800 hover:text-white' 
+                            disabled={!tableRef.current?.getIsSomeRowsSelected() && !tableRef.current?.getIsAllRowsSelected()} 
+                            onClick={() => handleExportCsvPeminjaman(tableRef.current?.getSelectedRowModel().rows)}
+                        >
+                        Export Selected Rows
+                        </Button>
+                    </div>
+                </div>
+                <div className='flex space-x-[1px]'>
+                    <button className='main-btn cursor-default'>
+                        <FontAwesomeIcon icon={faFilePdf} size='xl' />
+                    </button>
+                    <div className='flex flex-grow items-center border rounded border-gray-800'>
+                        <Button 
+                            className='flex-grow rounded py-[8px] text-black hover:bg-gray-800 hover:text-white' 
+                            disabled={tableRef.current?.getPrePaginationRowModel().rows.length === 0} 
+                            onClick={() => handleExportPdfPeminjaman(tableRef.current?.getPrePaginationRowModel().rows)}
+                        >
+                        Export All Rows
+                        </Button>
+                        <Button 
+                            className='flex-grow rounded py-[8px] text-black hover:bg-gray-800 hover:text-white' 
+                            disabled={tableRef.current?.getRowModel().rows.length === 0} 
+                            onClick={() => handleExportPdfPeminjaman(tableRef.current?.getRowModel().rows)}
+                        >
+                        Export Page Rows
+                        </Button>
+                        <Button 
+                            className='flex-grow items-center rounded py-[8px] text-black hover:bg-gray-800 hover:text-white' 
+                            disabled={!tableRef.current?.getIsSomeRowsSelected() && !tableRef.current?.getIsAllRowsSelected()} 
+                            onClick={() => handleExportPdfPeminjaman(tableRef.current?.getSelectedRowModel().rows)}
+                        >
+                        Export Selected Rows
+                        </Button>
+                    </div>
+                </div>
+                <div className='mt-4'>
+                    <MaterialReactTable 
+                        columns={Peminjaman}
+                        data={HistoryLoanData}
+                        enableRowSelection={true}
+                        enableClickToCopy={false}
+                        columnFilterDisplayMode= 'popover'
+                        paginationDisplayMode= 'pages'
+                        positionToolbarAlertBanner= 'bottom'
+                        renderTopToolbarCustomActions= {({ table }) => { 
+                            tableRef.current = table;
+                            return null; 
+                        }}
+                    />
+                </div>
             </div>
-        </div>
-    );
+        )
+    };
     
 
     const { refreshHistoryTicket, HistoryTicket, refreshHistoryLoanData, HistoryLoanData } = useAuth();
     const [selectedAssetDetails, setSelectedAssetDetails] = useState([]);
-
+    const tableRef = useRef(null)
 
     useEffect(() =>{
         refreshHistoryTicket();
@@ -335,97 +428,6 @@ const History = () => {
             }),
         ];
 
-    const handleExportRowsCsvTicket = (rows) => {
-        const rowData = rows.map((row) => {
-          const dataRow = row.original;
-          return {
-            no: dataRow.no,
-            id: dataRow.idticket,
-            assset: dataRow.asset,
-            name: dataRow.name,
-            leasedatae: dataRow.leasedate,
-            returndate: dataRow.returndate,
-            location: dataRow.location,
-            note: dataRow.note,
-            email: dataRow.email,
-            status: dataRow.status,
-            admin1: dataRow.admin1,
-            admin2: dataRow.admin2,
-          };
-        });
-      
-        const csvConfig = mkConfig({
-          fieldSeparator: ',',
-          decimalSeparator: '.',
-          useKeysAsHeaders: true,
-        });
-      
-        const csv = generateCsv(csvConfig)(rowData);
-        download(csvConfig)(csv);
-      };
-      
-        const handleExportRowsPdfTicket = (rows) => {
-        const doc = new jsPDF();
-        const tableData = rows.map((row) => {
-          const dataRow = row.original;
-          return [dataRow.no, dataRow.idticket, dataRow.asset, dataRow.name, dataRow.leasedate, dataRow.returndate, dataRow.location, dataRow.note, dataRow.email, dataRow.status, dataRow.admin1, dataRow.admin2];
-        });
-      
-        const tableHeaders = ['No', 'ID Ticket', 'ID Asset', 'Name', 'Lease Date', 'Return Date', 'Location', 'Note', 'Email', 'Status', 'Admin #1', 'Admin #2'];
-      
-        autoTable(doc, {
-          head: [tableHeaders],
-          body: tableData,
-        });
-      
-        doc.save('mrt-pdf-example.pdf');
-    };
-
-
-
-    const handleExportRowsCsvPeminjaman = (rows) => {
-        const rowData = rows.map((row) => {
-          const dataRow = row.original;
-          return {
-            no: dataRow.no,
-            id: dataRow.idticket,
-            assset: dataRow.asset,
-            assetname: dataRow.assetname,
-            leasedatae: dataRow.leasedate,
-            returndate: dataRow.returndate,
-            name: dataRow.name,
-            email: dataRow.email,
-            status: dataRow.status,
-          };
-        });
-      
-        const csvConfig = mkConfig({
-          fieldSeparator: ',',
-          decimalSeparator: '.',
-          useKeysAsHeaders: true,
-        });
-      
-        const csv = generateCsv(csvConfig)(rowData);
-        download(csvConfig)(csv);
-      };
-      
-        const handleExportRowsPdfPeminjaman = (rows) => {
-        const doc = new jsPDF();
-        const tableData = rows.map((row) => {
-          const dataRow = row.original;
-          return [dataRow.no, dataRow.idticket, dataRow.asset, dataRow.assetname, dataRow.leasedate, dataRow.returndate, dataRow.name, dataRow.email, dataRow.status];
-        });
-      
-        const tableHeaders = ['No', 'ID Ticket', 'ID Asset', 'Name', 'Lease Date', 'Return Date', 'Username', 'Email', 'Status'];
-      
-        autoTable(doc, {
-          head: [tableHeaders],
-          body: tableData,
-        });
-      
-        doc.save('mrt-pdf-example.pdf');
-    };
-
     const HistoryMore = [
         {
             name: 'ID Asset',
@@ -475,44 +477,46 @@ const History = () => {
 
     return (
         <>
-            <div className='bg-black rounded-2xl p-4 shadow'>
-                <h2 className='text-white'>Selamat datang di History page :)</h2>
-            </div>
-            
-            <div className='bg-white rounded mt-6 '>
-                <div className='flex justify-center'>
-                    <h1 className="text-2xl font-semibold mt-6">Select Menu</h1>
+            <div className='p-2'>
+                <div className='bg-black rounded-2xl p-4 shadow'>
+                    <h2 className='text-white'>Selamat datang di History page :)</h2>
                 </div>
-                <Tabs value={activeTab}>
-                    <TabsHeader
-                    className="rounded-none p-0 border-b border-blue-gray-50 mt-4 bg-white"
-                    indicatorProps={{
-                        className:
-                        "bg-transparent border-b-2 border-gray-900 shadow-none rounded-none",
-                    }}
-                    >
-                    {data.map(({ label, value }) => (
-                        <Tab
-                        key={value}
-                        value={value}
-                        onClick={() => setActiveTab(value)}
-                        className={activeTab === value ? "text-gray-800" : "hover:text-gray-500"}
-                        >
-                        {label}
-                        </Tab>
-                    ))}
-                    </TabsHeader>
-                    <TabsBody>
-                    {data.map(({ value, content }) => (
-                        <TabPanel key={value} value={value}>
-                        {content}
-                        </TabPanel>
-                    ))}
-                    </TabsBody>
-                </Tabs>
             </div>
-
             
+            <div className='p-2'>
+                <div className='bg-white rounded mt-6 '>
+                    <div className='flex justify-center'>
+                        <h1 className="text-2xl font-semibold mt-6">Select Menu</h1>
+                    </div>
+                    <Tabs value={activeTab} className='p-2'>
+                        <TabsHeader
+                        className="rounded-none p-0 border-b border-blue-gray-50 mt-4 bg-white"
+                        indicatorProps={{
+                            className:
+                            "bg-transparent border-b-2 border-gray-900 shadow-none rounded-none",
+                        }}
+                        >
+                        {data.map(({ label, value }) => (
+                            <Tab
+                            key={value}
+                            value={value}
+                            onClick={() => setActiveTab(value)}
+                            className={activeTab === value ? "text-gray-800" : "hover:text-gray-500"}
+                            >
+                            {label}
+                            </Tab>
+                        ))}
+                        </TabsHeader>
+                        <TabsBody>
+                        {data.map(({ value, content }) => (
+                            <TabPanel key={value} value={value}>
+                            {content}
+                            </TabPanel>
+                        ))}
+                        </TabsBody>
+                    </Tabs>
+                </div>
+            </div>
 
             <Modal
                 isOpen={showMoreDetail}
@@ -532,12 +536,6 @@ const History = () => {
                     Close
                 </button>
             </Modal>
-
-            {/* Log */}
-            
-            {/* Peminjaman */}
-            
-
         </>
     )
 }

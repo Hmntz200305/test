@@ -58,7 +58,7 @@ const Submitted = () => {
         formData.append('SelectedTicketingAdmin', SelectedTicketingAdmin);
   
         const response = await fetch(
-          `http://sipanda.online:5000/api/ticketapprove/${selectedTicketId}`,
+          `https://sipanda.online:8443/api/ticketapprove/${selectedTicketId}`,
           {
             method: 'PUT',
             headers: {
@@ -93,7 +93,7 @@ const Submitted = () => {
         setIsLoading(true);
   
         const response = await fetch(
-          `http://sipanda.online:5000/api/ticketdecline/${selectedTicketId}`,
+          `https://sipanda.online:8443/api/ticketdecline/${selectedTicketId}`,
           {
             method: 'PUT',
             headers: {

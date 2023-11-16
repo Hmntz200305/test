@@ -4,9 +4,11 @@ from flask import jsonify, request
 from app.config_flask import SECRET_KEY, UPLOAD_FOLDER
 from werkzeug.utils import secure_filename
 from flask import current_app
-import json
+import socket
 import jwt
 import os
+
+server_ip = 'https://sipanda.online:8443'
 
 def verify_token(token):
     try:
@@ -64,13 +66,14 @@ class AddAsset(Resource):
                             save_path = os.path.join(current_app.config['UPLOAD_FOLDER'], ids)
                             os.makedirs(save_path, exist_ok=True)
                             file.save(os.path.join(save_path, filename))
-                            image_path = ('http://sipanda.online:5000/static/upload/' + ids + '/' + filename)
+                            print(server_ip + '/static/upload/' + ids + '/' + filename)
+                            image_path = (server_ip + '/static/upload/' + ids + '/' + filename)
                             lmd.execute("INSERT INTO assets (asset, name, description, brand, model, status, location, category, serialnumber, photo) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", (ids, nama, deskripsi, brand, model, status, lokasi, kategori, sn, image_path,))
                             db.commit()
                             lmd.close()
                             return {"message": "Asset successfully added with Photo"}, 200
                         else:
-                            image_path = ('http://sipanda.online:5000/static/Default/images.jfif')
+                            image_path = (server_ip + '/static/Default/images.jfif')
                             lmd.execute("INSERT INTO assets (asset, name, description, brand, model, status, location, category, serialnumber, photo) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", (ids, nama, deskripsi, brand, model, status, lokasi, kategori, sn, image_path))
                             db.commit()
                             lmd.close()

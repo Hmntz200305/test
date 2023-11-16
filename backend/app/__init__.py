@@ -3,6 +3,9 @@ from app.config_flask import SECRET_KEY, UPLOAD_FOLDER
 from app.config_api import configure_cors, configure_api
 from app.config_mail import configure_mail
 from app.module.resource import *
+from flask_sslify import SSLify
+import os
+
 
 app = Flask(__name__)
 configure_cors(app)
@@ -11,7 +14,7 @@ api = configure_api(app)
 app.config['SECRET_KEY'] = SECRET_KEY
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-whitelisted_ips = ["http://sipanda.online:8080/"]
+whitelisted_ips = ["https://sipanda.online/", "https://sipanda.online:2096/"]
 @app.before_request
 def check_whitelist():
     client_ip = request.referrer
@@ -55,4 +58,6 @@ api.add_resource(VerifyEmailForgotPw, '/verifyemailforgotpw/<string:token>')
 api.add_resource(UploadCsv, '/api/importcsv')
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    cert_path = os.path.join(os.path.dirname(__file__), 'certificate.crt')
+    key_path = os.path.join(os.path.dirname(__file__), 'private.key')
+    app.run(ssl_context=(cert_path, key_path), host='0.0.0.0', port=8443, debug=True)

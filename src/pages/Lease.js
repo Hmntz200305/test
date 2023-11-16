@@ -61,7 +61,7 @@ const Lease = () => {
           formData.append('Admin1', selectedAdmin1)
           formData.append('Admin2', selectedAdmin2)
   
-          const response = await fetch("http://sipanda.online:5000/api/leaseticket", {
+          const response = await fetch("https://sipanda.online:8443/api/leaseticket", {
             method: "POST",
             headers: {
               Authorization: token,

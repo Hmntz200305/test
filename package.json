@@ -55,7 +55,7 @@
         "webrtc-adapter": "^8.2.3"
     },
     "scripts": {
-        "start": "react-scripts start",
+        "start": "export HTTPS=true&&SSL_CRT_FILE=certificate.crt&&SSL_KEY_FILE=private.key react-scripts start",
         "build": "react-scripts build",
         "test": "react-scripts test",
         "eject": "react-scripts eject"

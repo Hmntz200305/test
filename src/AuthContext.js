@@ -44,7 +44,7 @@ export const AuthProvider = ({ children }) => {
         setEmail(storedEmail); // Set email dari localStorage
         setLoggedIn(true);
         try {
-          const response = await fetch("http://sipanda.online:5000/api/authentication", {
+          const response = await fetch("https://sipanda.online:8443/api/authentication", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -94,7 +94,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const refreshAssetData = () => {
-    fetch('http://sipanda.online:5000/api/getdata-listasset')
+    fetch('https://sipanda.online:8443/api/getdata-listasset')
       .then((response) => response.json())
       .then((data) => {
         setDataListAsset(data);
@@ -105,7 +105,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const refreshAssetDataExcept = () => {
-    fetch('http://sipanda.online:5000/api/getdata-listassetexcept')
+    fetch('https://sipanda.online:8443/api/getdata-listassetexcept')
       .then((response) => response.json())
       .then((data) => {
         setDataListAssetExcept(data);
@@ -116,7 +116,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const refreshStatusList = () => {
-    fetch('http://sipanda.online:5000/api/getdata-statuslist')
+    fetch('https://sipanda.online:8443/api/getdata-statuslist')
       .then((response) => response.json())
       .then((data) => {
         setStatusOptions(data);
@@ -127,7 +127,7 @@ export const AuthProvider = ({ children }) => {
   }
 
   const refreshLocationList = () => {
-    fetch('http://sipanda.online:5000/api/getdata-locationlist')
+    fetch('https://sipanda.online:8443/api/getdata-locationlist')
       .then((response) => response.json())
       .then((data) => {
         setLocationOptions(data);
@@ -138,7 +138,7 @@ export const AuthProvider = ({ children }) => {
   }
 
   const refreshCategoryList = () => {
-    fetch('http://sipanda.online:5000/api/getdata-categorylist')
+    fetch('https://sipanda.online:8443/api/getdata-categorylist')
       .then((response) => response.json())
       .then((data) => {
         setCategoryOptions(data);
@@ -149,7 +149,7 @@ export const AuthProvider = ({ children }) => {
   }
 
   const refreshManageUser = () => {
-    fetch('http://sipanda.online:5000/api/manageuser')
+    fetch('https://sipanda.online:8443/api/manageuser')
       .then((response) => response.json())
       .then((data) => {
         setManageUserData(data);
@@ -160,7 +160,7 @@ export const AuthProvider = ({ children }) => {
   }
 
   const refreshAdminList = () => {
-    fetch('http://sipanda.online:5000/api/adminlist')
+    fetch('https://sipanda.online:8443/api/adminlist')
       .then((response) => response.json())
       .then((data) => {
         setAdminList(data);
@@ -178,7 +178,7 @@ export const AuthProvider = ({ children }) => {
       }
     };
     
-    fetch('http://sipanda.online:5000/api/leasesubmited', requestOptions)
+    fetch('https://sipanda.online:8443/api/leasesubmited', requestOptions)
       .then((response) => response.json())
       .then((data) => {
         setSubmitedList(data);
@@ -189,7 +189,7 @@ export const AuthProvider = ({ children }) => {
   }
 
   const refreshDashboardInfo = () => {
-    fetch('http://sipanda.online:5000/api/DashboardInfo')
+    fetch('https://sipanda.online:8443/api/DashboardInfo')
       .then((response) => response.json())
       .then((data) => {
         setDashboardInfo(data);
@@ -209,7 +209,7 @@ export const AuthProvider = ({ children }) => {
       }
     };
     
-    fetch('http://sipanda.online:5000/api/dataloan', requestOptions)
+    fetch('https://sipanda.online:8443/api/dataloan', requestOptions)
       .then((response) => response.json())
       .then((data) => {
         setDataLoan(data);
@@ -220,7 +220,7 @@ export const AuthProvider = ({ children }) => {
   }
 
   const refreshHistoryTicket = () => {
-    fetch('http://sipanda.online:5000/api/historyticket')
+    fetch('https://sipanda.online:8443/api/historyticket')
       .then((response) => response.json())
       .then((data) => {
         setHistoryTicket(data);
@@ -231,7 +231,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const refreshHistoryLoanData = () => {
-    fetch('http://sipanda.online:5000/api/historyloandata')
+    fetch('https://sipanda.online:8443/api/historyloandata')
       .then((response) => response.json())
       .then((data) => {
         setHistoryLoanData(data);
@@ -249,7 +249,7 @@ export const AuthProvider = ({ children }) => {
       }
     };
     
-    fetch('http://sipanda.online:5000/api/myreport', requestOptions)
+    fetch('https://sipanda.online:8443/api/myreport', requestOptions)
       .then((response) => response.json())
       .then((data) => {
         setMyReport(data);

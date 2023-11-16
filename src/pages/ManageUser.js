@@ -216,7 +216,7 @@ const ManageUser = () => {
     const handleRegister = async (token) => {
         const selectedRole = roles || "0";
         try {
-          const response = await fetch("http://sipanda.online:5000/api/register", {
+          const response = await fetch("/api/register", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -257,7 +257,7 @@ const ManageUser = () => {
             password: password
         };
         try {
-            const response = await fetch(`http://sipanda.online:5000/api/edit-user/${selectedUser.no}`, {
+            const response = await fetch(`/api/edit-user/${selectedUser.no}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -283,7 +283,7 @@ const ManageUser = () => {
 
     const deleteUser = async (no) => {
         try {
-          const response = await fetch(`http://sipanda.online:5000/api/delete-user/${no}`, {
+          const response = await fetch(`/api/delete-user/${no}`, {
             method: 'DELETE',
             headers: {
               'Content-Type': 'application/json',

@@ -66,7 +66,7 @@ const AddAsset = () => {
           formData.append('addAssetImage', fileInput); 
         }
 
-        const response = await fetch("http://sipanda.online:5000/api/addasset", {
+        const response = await fetch("https://sipanda.online:8443/api/addasset", {
           method: "POST",
           headers: {
             Authorization: token,
@@ -106,7 +106,7 @@ const AddAsset = () => {
 
     const handleNewStatus = async (token) => {
       try {
-        const response = await fetch("http://sipanda.online:5000/api/addstatus", {
+        const response = await fetch("https://sipanda.online:8443/api/addstatus", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -134,7 +134,7 @@ const AddAsset = () => {
 
     const handleNewLocation = async (token) => {
       try {
-        const response = await fetch("http://sipanda.online:5000/api/addlocation", {
+        const response = await fetch("https://sipanda.online:8443/api/addlocation", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -162,7 +162,7 @@ const AddAsset = () => {
 
     const handleNewCategory = async (token) => {
       try {
-        const response = await fetch("http://sipanda.online:5000/api/addcategory", {
+        const response = await fetch("https://sipanda.online:8443/api/addcategory", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
