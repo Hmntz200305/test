@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useAuth } from '../AuthContext';
+import { Input, Menu, MenuList, MenuItem, MenuHandler, Button } from "@material-tailwind/react";
 
 const AddAsset = () => {
     const { token, Role, refreshAssetData, refreshStatusList, StatusOptions, refreshLocationList, LocationOptions, refreshCategoryList, CategoryOptions, setNotification, setNotificationStatus, setNotificationInfo } = useAuth();
@@ -22,6 +23,36 @@ const AddAsset = () => {
     const [addAssetSN, setaddAssetSN] = useState("");
     const [fileInput, setFileInput] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
+    const [inputValueStatus, setInputValueStatus] = useState('');
+    const [inputValueLocation, setInputValueLocation] = useState('');
+    const [inputValueCategory, setInputValueCategory] = useState('');
+    const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+    
+    const handleOptionSelectStatus = (option) => {
+      setInputValueStatus(option);
+      setaddAssetStatus(option);
+    };
+    const handleOptionSelectLocation = (option) => {
+      setInputValueLocation(option);
+      setaddAssetLocation(option);
+    };
+    const handleOptionSelectCategory = (option) => {
+      setInputValueCategory(option);
+      setaddAssetCategory(option);
+    };
+  
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth);
+    };
+  
+    useEffect(() => {
+      window.addEventListener('resize', handleResize);
+      return () => {
+        window.removeEventListener('resize', handleResize);
+      };
+    }, []);
+  
+    const isMobile = windowWidth <= 640;
 
 
     const handleImageChange = (e) => {
@@ -288,7 +319,7 @@ const AddAsset = () => {
             </div>
             )}
             
-            <div className='p-2'>
+            {/* <div className='p-2'>
                 <div className='p-2 bg-white rounded-xl'>
                     <form>
                         <div className='form-group'>
@@ -441,7 +472,208 @@ const AddAsset = () => {
                         </div>
                     </form>
                 </div>
-            </div>            
+            </div> */}
+
+            <div className='p-2'>
+              <div className='bg-white rounded-lg p-6 space-y-4'>
+                <div className='flex items-center gap-4'>
+                  <label className={`pr-4 w-32 text-right ${isMobile ? 'hidden lg:inline' : ''}`}>ID</label>
+                  <Input 
+                    variant="outline"
+                    label="Input Asset ID"
+                    value={addAssetID}
+                    onChange={(e) => setaddAssetID(e.target.value)}
+                    required
+                  />
+                </div>
+                <div className='flex items-center gap-4'>
+                  <label className={`pr-4 w-32 text-right ${isMobile ? 'hidden lg:inline' : ''}`}>Name</label>
+                  <Input
+                    variant="outline"
+                    label="Input Asset Name"
+                    value={addAssetName}
+                    onChange={(e) => setaddAssetName(e.target.value)} 
+                    required 
+                  />
+                </div>
+                <div className='flex items-center gap-4'>
+                  <label className={`pr-4 w-32 text-right ${isMobile ? 'hidden lg:inline' : ''}`}>Description</label>
+                  <Input 
+                    variant="outline" 
+                    label="Input Asset Description"
+                    value={addAssetDesc}
+                    onChange={(e) => setaddAssetDesc(e.target.value)} 
+                    required
+                  />
+                </div>
+                <div className='flex items-center gap-4'>
+                  <label className={`pr-4 w-32 text-right ${isMobile ? 'hidden lg:inline' : ''}`}>Brand</label>
+                  <Input 
+                    variant="outline" 
+                    label="Input Asset Brand" 
+                    value={addAssetBrand}
+                    onChange={(e) => setaddAssetBrand(e.target.value)} 
+                    required
+                  />
+                </div>
+                <div className='flex items-center gap-4'>
+                  <label className={`pr-4 w-32 text-right ${isMobile ? 'hidden lg:inline' : ''}`}>Model</label>
+                  <Input 
+                    variant="outline" 
+                    label="Input Asset Model"
+                    value={addAssetModel}
+                    onChange={(e) => setaddAssetModel(e.target.value)}  
+                    required
+                  />
+                </div>
+                <div className='flex items-center gap-4'>
+                  <label className={`pr-4 w-32 text-right ${isMobile ? 'hidden lg:inline' : ''}`}>Status</label>
+                  <div className='flex items-center w-full relative '>
+                    <Menu placement="bottom-start">
+                      <MenuHandler>
+                        <Button
+                          ripple={false}
+                          variant="text"
+                          color="blue-gray"
+                          className="border border-blue-gray-200 px-4 rounded-r-none"
+                        >
+                          Select
+                        </Button>
+                      </MenuHandler>
+                      <MenuList className="max-w-[18rem]">
+                        {StatusOptions.map((status) => (
+                          <MenuItem key={status.id} value={status.status} onClick={() => handleOptionSelectStatus(status.status)}>
+                            {status.status}
+                          </MenuItem>
+                        ))}
+                      </MenuList>
+                    </Menu>
+                    <Input 
+                      className='w-full rounded-l-none'
+                      type="text"
+                      value={inputValueStatus}
+                      onChange={(e) => setInputValueStatus(e.target.value)}
+                      disabled
+                      required
+                      label='Input Asset Status'
+                    />
+                    {Role === 2 && (
+                      <Button
+                        color='gray'
+                        ripple={false}
+                        className='absolute right-0 px-4 z-10'
+                        onClick={showStatusHandler}
+                      >
+                        +
+                      </Button>
+                    )}
+                  </div>
+                </div>
+                <div className='flex items-center gap-4'>
+                  <label className={`pr-4 w-32 text-right ${isMobile ? 'hidden lg:inline' : ''}`}>Location</label>
+                  <div className='flex items-center w-full relative'>
+                    <Menu placement="bottom-start">
+                      <MenuHandler>
+                        <Button
+                          ripple={false}
+                          variant="text"
+                          color="blue-gray"
+                          className="border border-blue-gray-200 px-4 rounded-r-none"
+                        >
+                          Select
+                        </Button>
+                      </MenuHandler>
+                      <MenuList className="max-w-[18rem]">
+                        {LocationOptions.map((location) => (
+                          <MenuItem value={location.location} key={location.id} onClick={() => handleOptionSelectLocation(location.location)}>
+                            {location.location}
+                          </MenuItem>
+                        ))}
+                      </MenuList>
+                    </Menu>
+                    <Input
+                      className='w-full rounded-l-none'
+                      type="text"
+                      value={inputValueLocation}
+                      onChange={(e) => setInputValueLocation(e.target.value)}
+                      disabled
+                      required
+                      label='Input Asset Location'
+                    />
+                    {Role === 2 && (
+                      <Button
+                        color='gray'
+                        ripple={false}
+                        className='absolute top-0 right-0 px-4 z-10'
+                        onClick={showLocationHandler}
+                      >
+                        +
+                      </Button>
+                    )}
+                  </div>
+                </div>
+                <div className='flex items-center gap-4'>
+                  <label className={`pr-4 w-32 text-right ${isMobile ? 'hidden lg:inline' : ''}`}>Category</label>
+                  <div className='flex items-center w-full relative'>
+                    <Menu placement="bottom-start">
+                      <MenuHandler>
+                        <Button
+                          ripple={false}
+                          variant="text"
+                          color="blue-gray"
+                          className="border border-blue-gray-200 px-4 rounded-r-none"
+                        >
+                          Select
+                        </Button>
+                      </MenuHandler>
+                      <MenuList className="max-w-[18rem]">
+                        {CategoryOptions.map((category) => (
+                          <MenuItem value={category.category} key={category.id} onClick={() => handleOptionSelectCategory(category.category)}>
+                            {category.category}
+                          </MenuItem>
+                        ))}
+                      </MenuList>
+                    </Menu>
+                    <Input
+                      className='w-full rounded-l-none'
+                      type="text"
+                      value={inputValueCategory}
+                      onChange={(e) => setInputValueCategory(e.target.value)}
+                      disabled
+                      required
+                      label='Input Asset Category'
+                    />
+                    {Role === 2 && (
+                      <Button
+                        color='gray'
+                        ripple={false}
+                        className='absolute top-0 right-0 px-4 z-10'
+                        onClick={showCategoryHandler}
+                      >
+                        +
+                      </Button>
+                    )}
+                  </div>
+                </div>
+                <div className='flex items-center gap-4'>
+                  <label className={`pr-4 w-32 text-right ${isMobile ? 'hidden lg:inline' : ''}`}>Serial Number</label>
+                  <Input 
+                    variant="outline" 
+                    label="Input Asset Serial Number"
+                    value={addAssetSN}
+                    onChange={(e) => setaddAssetSN(e.target.value)}  
+                    required
+                  />
+                </div>
+                <div className='flex items-center gap-4'>
+                  <label className={`pr-4 w-32 text-right ${isMobile ? 'hidden lg:inline' : ''}`}>Photo</label>
+                  <Input type='file' accept='image/*' variant="outline" label="Input Asset Photo" name='photo' onChange={handleImageChange} />
+                </div>
+                <div className='flex justify-end'>
+                  <button type="button" className='main-btn' id="edit-button" onClick={() => handleAddAsset(token)} disabled={isLoading}>{isLoading ? 'Adding...' : 'Add Asset'}</button>
+                </div>
+              </div>
+            </div>   
         </>
     )
 }

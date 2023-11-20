@@ -3,7 +3,6 @@ import { Input, } from "@material-tailwind/react";
 
 const Chat = () => {
 
-
     return (
         <>
             <div className='p-2'>
@@ -14,9 +13,11 @@ const Chat = () => {
 
             <div className='p-2'>
                 <div className='p-2 bg-white rounded'>
-                    <div className="w-72">
-        <Input label="Username" />
-        </div>
+                    <div className="flex w-72 p-2 flex-col gap-6">
+                        <Input variant="static" label="Static" placeholder="Static" />
+                        <Input variant="standard" label="Standard" />
+                        <Input variant="outlined" label="Outlined" />
+                    </div>
                 </div>
             </div>
         </>

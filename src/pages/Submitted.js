@@ -115,7 +115,7 @@ const Submitted = () => {
           setNotification('Failed');
           setNotificationStatus(true);
         }
-      } catch (error) {
+      } catch (error) {  
         console.error('Error:', error);
       } finally {
         setIsLoading(false);
