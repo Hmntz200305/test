@@ -70,8 +70,6 @@ export const AuthProvider = ({ children }) => {
     fetchData();
     // eslint-disable-next-line
   }, [Role]);
-  
-  
 
   const login = (data) => {
     setToken(data.token);

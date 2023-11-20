@@ -22,6 +22,10 @@ const History = () => {
     const LogContent = () => {
 
         const handleExportCsvLog = (rows) => {
+            if (rows.length === 0) {
+                console.error('Tidak ada data yang dipilih untuk diekspor CSV Log.');
+                return;
+            }
             const rowData = rows.map((row) => {
               const dataRow = row.original;
               return {
@@ -51,6 +55,10 @@ const History = () => {
           };
           
             const handleExportPdfLog = (rows) => {
+            if (rows.length === 0) {
+                console.error('Tidak ada data yang dipilih untuk diekspor PDF Log.');
+                return;
+            }
             const doc = new jsPDF();
             const tableData = rows.map((row) => {
               const dataRow = row.original;
@@ -75,27 +83,27 @@ const History = () => {
                         <FontAwesomeIcon icon={faFileCsv} size='xl' />
                     </button>
                     <div className='flex flex-grow items-center border rounded border-gray-800'>
-                        <Button 
+                        <button 
                             className='flex-grow rounded py-[8px] text-black hover:bg-gray-800 hover:text-white'
-                            disabled={tableRef.current?.getPrePaginationRowModel().rows.length === 0} 
+                            // disabled={tableRef.current?.getPrePaginationRowModel().rows.length === 0} 
                             onClick={() => handleExportCsvLog(tableRef.current?.getPrePaginationRowModel().rows)}
                         >
                         Export All Rows
-                        </Button>
-                        <Button
+                        </button>
+                        <button
                             className='flex-grow rounded py-[8px] text-black hover:bg-gray-800 hover:text-white' 
-                            disabled={tableRef.current?.getRowModel().rows.length === 0}
+                            // disabled={tableRef.current?.getRowModel().rows.length === 0}
                             onClick={() => handleExportCsvLog(tableRef.current?.getRowModel().rows)}
                         >
                         Export Page Rows
-                        </Button>
-                        <Button 
+                        </button>
+                        <button 
                             className='flex-grow rounded py-[8px] text-black hover:bg-gray-800 hover:text-white' 
-                            disabled={!tableRef.current?.getIsSomeRowsSelected() && !tableRef.current?.getIsAllRowsSelected()} 
+                            // disabled={!tableRef.current?.getIsSomeRowsSelected() && !tableRef.current?.getIsAllRowsSelected()} 
                             onClick={() => handleExportCsvLog(tableRef.current?.getSelectedRowModel().rows)}
                         >
                         Export Selected Rows
-                        </Button>
+                        </button>
                     </div>
                 </div>
                 <div className='flex space-x-[1px]'>
@@ -103,27 +111,27 @@ const History = () => {
                         <FontAwesomeIcon icon={faFilePdf} size='xl' />
                     </button>
                     <div className='flex flex-grow items-center border rounded border-gray-800'>
-                        <Button 
+                        <button 
                             className='flex-grow rounded py-[8px] text-black hover:bg-gray-800 hover:text-white' 
-                            disabled={tableRef.current?.getPrePaginationRowModel().rows.length === 0} 
+                            // disabled={tableRef.current?.getPrePaginationRowModel().rows.length === 0} 
                             onClick={() => handleExportPdfLog(tableRef.current?.getPrePaginationRowModel().rows)}
                         >
                         Export All Rows
-                        </Button>
-                        <Button 
+                        </button>
+                        <button 
                             className='flex-grow rounded py-[8px] text-black hover:bg-gray-800 hover:text-white' 
-                            disabled={tableRef.current?.getRowModel().rows.length === 0} 
+                            // disabled={tableRef.current?.getRowModel().rows.length === 0} 
                             onClick={() => handleExportPdfLog(tableRef.current?.getRowModel().rows)}
                         >
                         Export Page Rows
-                        </Button>
-                        <Button 
+                        </button>
+                        <button 
                             className='flex-grow items-center rounded py-[8px] text-black hover:bg-gray-800 hover:text-white' 
-                            disabled={!tableRef.current?.getIsSomeRowsSelected() && !tableRef.current?.getIsAllRowsSelected()} 
+                            // disabled={!tableRef.current?.getIsSomeRowsSelected() && !tableRef.current?.getIsAllRowsSelected()} 
                             onClick={() => handleExportPdfLog(tableRef.current?.getSelectedRowModel().rows)}
                         >
                         Export Selected Rows
-                        </Button>
+                        </button>
                     </div>
                 </div>
                 <div className='mt-4'>
@@ -147,6 +155,10 @@ const History = () => {
     const PeminjamanContent = () => {
 
         const handleExportCsvPeminjaman = (rows) => {
+            if (rows.length === 0) {
+                console.error('Tidak ada data yang dipilih untuk diekspor CSV Peminjaman.');
+                return;
+            }
             const rowData = rows.map((row) => {
               const dataRow = row.original;
               return {
@@ -173,6 +185,10 @@ const History = () => {
           };
           
             const handleExportPdfPeminjaman = (rows) => {
+            if (rows.length === 0) {
+                console.error('Tidak ada data yang dipilih untuk diekspor PDF Peminjaman.');
+                return;
+            }
             const doc = new jsPDF();
             const tableData = rows.map((row) => {
               const dataRow = row.original;
@@ -197,27 +213,27 @@ const History = () => {
                         <FontAwesomeIcon icon={faFileCsv} size='xl' />
                     </button>
                     <div className='flex flex-grow items-center border rounded border-gray-800'>
-                        <Button 
+                        <button 
                             className='flex-grow rounded py-[8px] text-black hover:bg-gray-800 hover:text-white'
-                            disabled={tableRef.current?.getPrePaginationRowModel().rows.length === 0} 
+                            // disabled={tableRef.current?.getPrePaginationRowModel().rows.length === 0} 
                             onClick={() => handleExportCsvPeminjaman(tableRef.current?.getPrePaginationRowModel().rows)}
                         >
                         Export All Rows
-                        </Button>
-                        <Button
+                        </button>
+                        <button
                             className='flex-grow rounded py-[8px] text-black hover:bg-gray-800 hover:text-white' 
-                            disabled={tableRef.current?.getRowModel().rows.length === 0}
+                            // disabled={tableRef.current?.getRowModel().rows.length === 0}
                             onClick={() => handleExportCsvPeminjaman(tableRef.current?.getRowModel().rows)}
                         >
                         Export Page Rows
-                        </Button>
-                        <Button 
+                        </button>
+                        <button 
                             className='flex-grow rounded py-[8px] text-black hover:bg-gray-800 hover:text-white' 
-                            disabled={!tableRef.current?.getIsSomeRowsSelected() && !tableRef.current?.getIsAllRowsSelected()} 
+                            // disabled={!tableRef.current?.getIsSomeRowsSelected() && !tableRef.current?.getIsAllRowsSelected()} 
                             onClick={() => handleExportCsvPeminjaman(tableRef.current?.getSelectedRowModel().rows)}
                         >
                         Export Selected Rows
-                        </Button>
+                        </button>
                     </div>
                 </div>
                 <div className='flex space-x-[1px]'>
@@ -225,27 +241,27 @@ const History = () => {
                         <FontAwesomeIcon icon={faFilePdf} size='xl' />
                     </button>
                     <div className='flex flex-grow items-center border rounded border-gray-800'>
-                        <Button 
+                        <button 
                             className='flex-grow rounded py-[8px] text-black hover:bg-gray-800 hover:text-white' 
-                            disabled={tableRef.current?.getPrePaginationRowModel().rows.length === 0} 
+                            // disabled={tableRef.current?.getPrePaginationRowModel().rows.length === 0} 
                             onClick={() => handleExportPdfPeminjaman(tableRef.current?.getPrePaginationRowModel().rows)}
                         >
                         Export All Rows
-                        </Button>
-                        <Button 
+                        </button>
+                        <button 
                             className='flex-grow rounded py-[8px] text-black hover:bg-gray-800 hover:text-white' 
-                            disabled={tableRef.current?.getRowModel().rows.length === 0} 
+                            // disabled={tableRef.current?.getRowModel().rows.length === 0} 
                             onClick={() => handleExportPdfPeminjaman(tableRef.current?.getRowModel().rows)}
                         >
                         Export Page Rows
-                        </Button>
-                        <Button 
+                        </button>
+                        <button 
                             className='flex-grow items-center rounded py-[8px] text-black hover:bg-gray-800 hover:text-white' 
-                            disabled={!tableRef.current?.getIsSomeRowsSelected() && !tableRef.current?.getIsAllRowsSelected()} 
+                            // disabled={!tableRef.current?.getIsSomeRowsSelected() && !tableRef.current?.getIsAllRowsSelected()} 
                             onClick={() => handleExportPdfPeminjaman(tableRef.current?.getSelectedRowModel().rows)}
                         >
                         Export Selected Rows
-                        </Button>
+                        </button>
                     </div>
                 </div>
                 <div className='mt-4'>

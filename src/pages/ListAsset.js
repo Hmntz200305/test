@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import 'react-data-table-component-extensions/dist/index.css';
-import { faDownload, faFileCsv, faFileExport, faUpload, faFileImport, faPenToSquare, faPrint, faTrash, faFilePdf } from '@fortawesome/free-solid-svg-icons';
-import { faCircleDown} from '@fortawesome/free-regular-svg-icons';
+import {  faFileCsv, faPenToSquare, faTrash, faFilePdf } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useAuth } from '../AuthContext';
 import { useDropzone } from 'react-dropzone';
@@ -21,6 +20,10 @@ const ListAsset = () => {
   const ExportContent = () => {
     
     const handleExportRowsCsv = (rows) => {
+      if (rows.length === 0) {
+        console.error('Tidak ada data yang dipilih untuk diekspor CSV.');
+        return;
+      }
       const rowData = rows.map((row) => {
         const dataRow = row.original;
         return {
@@ -48,6 +51,11 @@ const ListAsset = () => {
       };
     
       const handleExportRowsPdf = (rows) => {
+      if (rows.length === 0) {
+        // Tidak ada data yang dipilih, handle secara khusus (misalnya, tampilkan pesan kesalahan)
+        console.error('Tidak ada data yang dipilih untuk diekspor PDF.');
+        return;
+      }
       const doc = new jsPDF();
       const tableData = rows.map((row) => {
         const dataRow = row.original;
@@ -72,27 +80,27 @@ const ListAsset = () => {
             <FontAwesomeIcon icon={faFileCsv} size='xl' />
           </button>
           <div className='flex flex-grow items-center border rounded border-gray-800'>
-            <Button 
+            <button 
               className='flex-grow rounded py-[8px] text-black hover:bg-gray-800 hover:text-white'
-              disabled={tableRef.current?.getPrePaginationRowModel().rows.length === 0} 
+              // disabled={tableRef.current?.getPrePaginationRowModel().rows.length === 0} 
               onClick={() => handleExportRowsCsv(tableRef.current?.getPrePaginationRowModel().rows)}
             >
-              Export All Rows
-            </Button>
-            <Button
+              by All Rows
+            </button>
+            <button
               className='flex-grow rounded py-[8px] text-black hover:bg-gray-800 hover:text-white' 
-              disabled={tableRef.current?.getRowModel().rows.length === 0}
+              // disabled={tableRef.current?.getRowModel().rows.length === 0}
               onClick={() => handleExportRowsCsv(tableRef.current?.getRowModel().rows)}
             >
-              Export Page Rows
-            </Button>
-            <Button 
+              by Page Rows
+            </button>
+            <button 
               className='flex-grow rounded py-[8px] text-black hover:bg-gray-800 hover:text-white' 
-              disabled={!tableRef.current?.getIsSomeRowsSelected() && !tableRef.current?.getIsAllRowsSelected()} 
+              // disabled={!tableRef.current?.getIsSomeRowsSelected() && !tableRef.current?.getIsAllRowsSelected()} 
               onClick={() => handleExportRowsCsv(tableRef.current?.getSelectedRowModel().rows)}
             >
-              Export Selected Rows
-            </Button>
+              by Selected Rows
+            </button>
           </div>
         </div>
         <div className='flex space-x-[1px]'>
@@ -100,27 +108,27 @@ const ListAsset = () => {
             <FontAwesomeIcon icon={faFilePdf} size='xl' />
           </button>
           <div className='flex flex-grow items-center border rounded border-gray-800'>
-            <Button 
+            <button 
               className='flex-grow rounded py-[8px] text-black hover:bg-gray-800 hover:text-white' 
-              disabled={tableRef.current?.getPrePaginationRowModel().rows.length === 0} 
+              // disabled={tableRef.current?.getPrePaginationRowModel().rows.length === 0} 
               onClick={() => handleExportRowsPdf(tableRef.current?.getPrePaginationRowModel().rows)}
             >
-              Export All Rows
-            </Button>
-            <Button 
+              by All Rows
+            </button>
+            <button 
               className='flex-grow rounded py-[8px] text-black hover:bg-gray-800 hover:text-white' 
-              disabled={tableRef.current?.getRowModel().rows.length === 0} 
+              // disabled={tableRef.current?.getRowModel().rows.length === 0} 
               onClick={() => handleExportRowsPdf(tableRef.current?.getRowModel().rows)}
             >
-              Export Page Rows
-            </Button>
-            <Button 
+              by Page Rows
+            </button>
+            <button 
             className='flex-grow items-center rounded py-[8px] text-black hover:bg-gray-800 hover:text-white' 
-            disabled={!tableRef.current?.getIsSomeRowsSelected() && !tableRef.current?.getIsAllRowsSelected()} 
+            // disabled={!tableRef.current?.getIsSomeRowsSelected() && !tableRef.current?.getIsAllRowsSelected()} 
             onClick={() => handleExportRowsPdf(tableRef.current?.getSelectedRowModel().rows)}
             >
-              Export Selected Rows
-            </Button>
+              by Selected Rows
+            </button>
           </div>
         </div>
       </div>
@@ -314,7 +322,7 @@ const ListAsset = () => {
     
   const deleteAsset = async (id) => {
     try {
-      const response = await fetch(`http://103.148.77.238/api/delete-asset/${id}`, {
+      const response = await fetch(`https://sipanda.online:8443//api/delete-asset/${id}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
@@ -338,17 +346,17 @@ const ListAsset = () => {
     }
   };
 
-  const [activeTab, setActiveTab] = React.useState("import");
+  const [activeTab, setActiveTab] = React.useState("export");
     const data = [
+    {
+        label: "Export",
+        value: "export",
+        content: <ExportContent />,
+    },
     {
         label: "Import",
         value: "import",
         content: <ImportContent />,
-    },
-    {
-      label: "Export",
-      value: "export",
-      content: <ExportContent />,
     },
   ];
 
