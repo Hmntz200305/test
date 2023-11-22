@@ -2,13 +2,128 @@ import React, { useState, useEffect } from 'react';
 import { QrReader } from 'react-qr-reader';
 import 'webrtc-adapter';
 import 'react-data-table-component-extensions/dist/index.css';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useAuth } from '../AuthContext';
 import { MaterialReactTable, createMRTColumnHelper, useMaterialReactTable, } from 'material-react-table';
 import { Box, Button, colors } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import Modal from 'react-modal';
 import { Tabs, TabsHeader, TabsBody, Tab, TabPanel, } from "@material-tailwind/react";
+
+
+const editAsset = async (token) => {
+  const formData = new FormData();
+
+  formData.append('id', selectedAsset.id);
+  formData.append('name', selectedAsset.name);
+  formData.append('description', selectedAsset.description);
+  formData.append('brand', selectedAsset.brand);
+  formData.append('model', selectedAsset.model);
+  formData.append('status', selectedAsset.status);
+  formData.append('location', selectedAsset.location);
+  formData.append('category', selectedAsset.category);
+  formData.append('sn', selectedAsset.sn);
+
+  if (fileInput) {
+    formData.append('addAssetImage', fileInput); 
+  }
+
+  try {
+    const response = await fetch(`http://103.148.77.238/api/edit-asset/${selectedAsset.no}`, {
+      method: 'PUT',
+      headers: {
+        Authorization: token,
+      },
+      body: formData,
+    });
+    
+    if (response.status === 200) {
+      const data = await response.json();
+      setNotification(data.message);
+      setNotificationStatus(true);
+      setShowEdit(false);
+      refreshAssetData();
+    } else {
+      const data = await response.json();
+      setNotification(data.message);
+      setNotificationStatus(true);
+      setNotificationInfo('Error');
+    }
+  } catch (error) {
+    console.error('Error:', error);
+  }
+}
+
+
+const columnHelper = createMRTColumnHelper();
+const columnsNew = [
+  columnHelper.accessor('no', {
+    header: 'No',
+    size: 40,
+  }),
+  columnHelper.accessor('id', {
+    header: 'ID Asset',
+    size: 120,
+  }),
+  columnHelper.accessor('name', {
+    header: 'Name',
+    size: 120,
+  }),
+  columnHelper.accessor('description', {
+    header: 'Description',
+    size: 300,
+  }),
+  columnHelper.accessor('brand', {
+    header: 'Brand',
+  }),
+  columnHelper.accessor('model', {
+    header: 'Model',
+    size: 220,
+  }),
+  columnHelper.accessor('status', {
+    header: 'Status',
+    size: 220,
+  }),
+  columnHelper.accessor('location', {
+    header: 'Location',
+    size: 220,
+  }),
+  columnHelper.accessor('category', {
+    header: 'Category',
+    size: 220,
+  }),
+  columnHelper.accessor('sn', {
+    header: 'SN',
+    size: 220,
+  }),
+  columnHelper.accessor('image_path', {
+    header: 'Photo',
+    size: 200,
+    enableSorting: false,
+    enableColumnFilter: false,
+    Cell: ({ row }) => (
+      <img src={row.original.image_path} alt="Asset" style={{ width: '70px', height: 'auto' }} />
+    ),
+  }),
+  columnHelper.accessor('action', {
+    header: Role === 2 ? 'Action' : '',
+    omit: Role !== 2,
+    size: 120,
+    enableSorting: false,
+    enableColumnFilter: false,
+    Cell: ({row}) => (
+      Role === 2 ? (
+        <div className='text-white'>
+          <button className='bg-green-500 p-2 rounded-lg hover:bg-green-700 m-0.5' onClick={() => showEditHandler(row.original)}>
+            <FontAwesomeIcon icon={faPenToSquare} />
+          </button>
+          <button className='bg-red-500 p-2 rounded-lg hover:bg-red-700 m-0.5' onClick={() => showDeleteHandler(row.original.no)}>
+            <FontAwesomeIcon icon={faTrash} />
+          </button>
+        </div>
+      ) : null
+      ),
+    }),
+];
 
 const QRScanner = () => {
   const [result, setResult] = useState('');
